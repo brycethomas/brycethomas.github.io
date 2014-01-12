@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<title> A Successful PhD Workflow for Programmers  - Vanilla Bean Creme</title>
+		<!-- For responsive site
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		-->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<link rel="author" href="/humans.txt">
+		<meta name="description" content="Description Goes Here">
+		<link rel="stylesheet" href="/css/style.css">
+		<!--[if IE 7]>
+			<html class="ie7"> 
+			<link rel="stylesheet" type="text/css" href="/css/font-awesome-ie7.min.css">
+		<![endif]-->
+		<!--[if IE 8]><html class="ie8"> <![endif]-->		
+	    <!--[if lt IE 9]>
+	      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	    <![endif]-->
+
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+		<link rel="shortcut icon" href="ico/favicon.png">	    
+	</head>
+	<body>
+	<!-- Header
+	    ================================================== -->
+	<header>
+
+	</header>
+
+	<div class="top-strip"></div>
+<main class="content">
+    <section class="container">
+    	<div class="row-fluid">
+    		<article class="home-icon">
+				<a href="/">
+					<i class="icon-home"></i> 
+				</a>
+			</article>
+			<article class="post">
+				<h5>13 January 2014</h5>
+				<h2 class="content">A Successful PhD Workflow for Programmers</h2>
+				<section>
+					<p>I&#39;ve been working towards my PhD for almost three years now and have
+tried a lot of different tools for improving my workflow during that
+time.  For the sake of others about to start a PhD or currently
+studying towards one, I&#39;ve decided to document what I&#39;ve found works.
+I can summarise it in two words -- <em>plain text</em>.  You want all of the
+artifacts you create throughout your PhD to be reproducible from plain
+text.  The first thing you ought to do when you start your PhD is
+this:</p>
+<div class="highlight"><pre><code class="bash language-bash" data-lang="bash"><span class="nb">cd</span> ~
+mkdir -p phd
+<span class="nb">cd </span>phd
+<span class="nb">echo</span> <span class="s2">&quot;echo \&quot;TODO: complete PhD\&quot;&quot;</span> &gt; build_phd.sh
+chmod a+x ./build_phd.sh
+build_phd.sh
+</code></pre></div>
+<p>The holy grail now is to maintain the ability to compile the entirety
+of your PhD artifacts with a single call to <code>~/phd/build_phd.sh</code>.<br>
+Allow me to get you off to a good start on building out
+<code>build_phd.sh</code>:</p>
+<div class="highlight"><pre><code class="bash language-bash" data-lang="bash"><span class="nb">cd</span> ~/phd
+mkdir -p thesis
+<span class="nb">cd </span>thesis
+touch main.tex
+</code></pre></div>
+<p>Then open <code>main.tex</code> and add the following:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">\documentclass{article}
+\begin{document}
+TODO: write my thesis.
+\end{document}
+</code></pre></div>
+<p>Now open <code>~/phd/build_phd.sh</code> and edit it so it reads:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">echo -e &quot;compiling my PhD...&quot;
+cd thesis
+pdflatex main.tex
+bibtex main
+# Run twice to get references right.
+for run in {1..2}; do pdflatex main.tex; done
+cd ../
+</code></pre></div>
+<p>You&#39;ve now taken the first step towards automating the build of your
+PhD.  At this point you might be wondering why you just went to all
+that effort to write a script to compile a latex document, you
+normally just do that by pressing the pretty play button in LyX,
+right?  Wrong.  The perennial issue you&#39;re going to face if you rely
+on GUIs to produce results is lack of automation and painstaking
+repetition.  At the moment your thesis document is super simple -- it
+doesn&#39;t include any figures or calculated results.  As you analyze
+data and include results though, you&#39;re going to want an automated way
+to build those results into a final deliverable product e.g. the
+thesis or a paper.  To be fair, having to press the &quot;compile&quot; button
+in a LaTeX document will be the least of your worries.  Where things
+get really painful is when you rely on GUIs to <em>produce the results</em>
+going into your LaTeX documents.  Here&#39;s the thing about using GUIs to
+produce your results -- whether you think so or not, you <em>will</em> end up
+needing to produce those results again and you <em>will</em> forget what
+steps you took to produce them.  Also you <em>won&#39;t</em> make a written
+record of those steps, as it too is incredibly painful.  The best way
+around this is to write scripts that perform the <em>equivalent</em> (not
+identical) GUI steps and then call those scripts from <code>build_phd.sh</code>.
+The first paper I ever wrote I failed to heed this advice and paid for
+it.  Even though I wrote code to describe the simulation itself, I never
+recorded the correct order of steps to actually run it.  As it turns
+out, academia is slow as hell at giving feedback.  You&#39;ll submit a
+paper and be relatively care-free for 6 months.  Then, the review will
+come back -- <em>this work is good rar rar rar but could be improved if
+you instead did x</em>, where <em>x</em> is some small variant on your existing
+work.  Cue inertia.  The good news is, you&#39;ll find in research there
+are nearly always equivalent command line tools to GUIs.</p>
+
+<p>To give a simple example, lets say you have some processing you need
+to perform over some data that requires either 20 clicks between
+various items in a GUI or can be automated in code.  Let&#39;s assume the
+output is the figure <em>my_cool_result.pdf</em> and it needs to make its way
+into your thesis.  Recall our directory structure already looks like
+this:</p>
+
+<p>TODO: show structure.</p>
+
+<p>We can add a line to <code>build_phd.sh</code> like:</p>
+
+<p><code>python my_cool_result_generator.py &gt; ./thesis/my_cool_result.pdf</code>.</p>
+
+<p><code>my_cool_result_generator.py</code> is now your written record of the steps
+required to produce that result.  In programming, people always tell
+you to write clear enough code that you could come back to it in 6
+months and know what you were doing.  Even bad code is a record.  If
+you rely on GUIs you&#39;re coming back to your work in 6 months with no
+record of anything.</p>
+
+<h3 id="toc_0">Microsoft Word in Academia</h3>
+
+<p>Let&#39;s get this cleared up.  LaTeX is the worst typesetting system
+except for all the rest.</p>
+
+<p>Once you start writing your thesis (and papers) you&#39;re
+going to f
+ind they need figures.  Those figures are going to be output
+as the result of processing data.  Chances are you&#39;re going to mess up
+that processing (and in turn your figures) many times over before you
+finally get it right.  Have you ever had to work on a document in
+Microsoft Word that required you insert a figure you created using
+another program?  And you found the figure didn&#39;t look quite right
+about 10,000 times over causing you to constantly click back and forth
+between programs, reproducing the figure and then reinserting the
+latest version into the document?  That&#39;s what we&#39;re trying to avoid
+here.  LaTeX at least has the notion of referencing figures as file
+names, so you can at least just update the file, manually recompile
+and get the result you were after.  At a minimum you ought to  </p>
+
+<p>where you needed to insert before Have you ever been
+using Microsoft Word, had to insert a figure and</p>
+
+					<hr>
+				</section>
+				<section style="font-weight:bold; margin-bottom: 2em;">
+					 
+							<a rel="prev" class="a-hover"href="/2013/10/01/tenth-post.html"><i class="icon-double-angle-left"></i> Bluth</a>
+						
+						
+				</section>
+			</article>
+		</div>
+	</section>
+</main>
+
+
+	<footer>
+		<div class="container">
+			<a href="http://richbray.me/frap/">Frappuccino</a> | Copyright or profile stuff goes here
+		</div>
+	</footer>
+
+	<!-- Footer
+	    ================================================== -->
+
+	<!-- Javascripts 
+	    ================================================= -->
+	<script src="/js/jquery.min.js"></script>
+	<script src="/js/custom.js"></script>
+
+    <!-- Analytics
+    ================================================== -->
+    <script>
+		// analytics code
+    </script>	
+	</body>
+</html>
