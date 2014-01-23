@@ -9,8 +9,10 @@ time.  For the sake of others about to start a PhD or currently
 studying towards one, I've decided to document what I've found works.
 I can summarise it in two words -- *plain text*.  You want all of the
 artifacts you create throughout your PhD to be reproducible from plain
-text.  The first thing you ought to do when you start your PhD is
-this:
+text.  Not only is this critical for automating the production (and
+re-production) of your results, but mastering and working in a plain
+text editor turns out to be a fairly enjoyable experience.  If I were
+to start my PhD over, the first thing I would do is this:
 
 ```bash
 cd ~
@@ -55,34 +57,80 @@ cd ../
 ```
 
 You've now taken the first step towards automating the build of your
-PhD.  At this point you might be wondering why you just went to all
-that effort to write a script to compile a latex document, you
-normally just do that by pressing the pretty play button in LyX,
-right?  Wrong.  The perennial issue you're going to face if you rely
-on GUIs to produce results is lack of automation and painstaking
-repetition.  At the moment your thesis document is super simple -- it
-doesn't include any figures or calculated results.  As you analyze
-data and include results though, you're going to want an automated way
-to build those results into a final deliverable product e.g. the
-thesis or a paper.  To be fair, having to press the "compile" button
-in a LaTeX document will be the least of your worries.  Where things
-get really painful is when you rely on GUIs to *produce the results*
-going into your LaTeX documents.  Here's the thing about using GUIs to
-produce your results -- whether you think so or not, you *will* end up
-needing to produce those results again and you *will* forget what
-steps you took to produce them.  Also you *won't* make a written
-record of those steps, as it too is incredibly painful.  The best way
-around this is to write scripts that perform the *equivalent* (not
-identical) GUI steps and then call those scripts from `build_phd.sh`.
-The first paper I ever wrote I failed to heed this advice and paid for
-it.  Even though I wrote code to describe the simulation itself, I never
-recorded the correct order of steps to actually run it.  As it turns
-out, academia is slow as hell at giving feedback.  You'll submit a
-paper and be relatively care-free for 6 months.  Then, the review will
-come back -- *this work is good rar rar rar but could be improved if
-you instead did x*, where *x* is some small variant on your existing
-work.  Cue inertia.  The good news is, you'll find in research there
-are nearly always equivalent command line tools to GUIs.
+PhD.  What's going to happen over time is, you're going to start
+writing your thesis in `main.tex`.  A big portion of it will just be
+your amazing prose.  But, you're also going to have figures, tables,
+variables, *data*.  Before we get onto how to handle this properly,
+let's talk about how not to.
+
+The greedy algorithm for completing your PhD is to take your
+interesting results (this is what they expect you to generate in
+exchange for your scholarship money), and then manually
+enter/manipulate or copy/paste them into your thesis.  The problem
+with this strategy is that you're too optimistic.  The folly starts
+with thinking you're only ever going to have to produce and transfer
+your results into your thesis document once.  In reality, you'll
+produce your results, slap them into your thesis, then a few
+re-readings later realise they're slightly wrong and/or crap in some
+way and need to be reproduced/further prettified.  On a timescale of
+minutes to days, you should expect that either the presentation of the
+results or the results themselves will need to updated 10's of times.
+At first this doesn't seem like much of a problem if you enjoy
+copy/paste.  The more serious problem though is that by violating the
+DRY principle you've now got your results in two places -- wherever
+you output them when you produced them, and in your thesis document.
+You're now relying on yourself to remember this and update your thesis
+accordingly when your results inevitably change.  Things only get
+worse when you start submitting your work for review.  As it turns
+out, academia is slow as shit with giving feedback.  It typically
+takes on the order of months to get a reviewer's feedback on a paper.
+And guess what -- they're probably going to be critical of at least
+one of your results or how they're presented.  By now you have no
+fucking clue how you generated your results in the first place -- it's
+been 6 months.  If you thinking revising the prose of a paper is
+painful, think about revising your results.  See the thing about the
+copy/paste approach to getting results into your thesis is that it
+allows you to get lazy on the *production* side as well.  6 months on
+you won't remember what scripts you ran in what order or what magic
+sequence of buttons you pressed in Excel to generate your results.
+And it's easy to produce your results in this way when you convince
+yourself you'll only have to transfer them over to a document once.
+Now onto the better way.
+
+The optimal solution is to build out your `build_phd.sh` script to
+compute all of your results from the raw input data and then inject
+those results into your thesis.  An example of this is have code in
+`build_phd.sh` to generate an important .pdf figure from the raw input
+data as well as save that figure into your thesis directory.
+
+At this point you might be wondering why you just went to all that
+effort to write a script to compile a latex document, you normally
+just do that by pressing the pretty play button in LyX, right?  Wrong.
+The perennial issue you're going to face if you rely on GUIs to
+produce results is lack of automation and painstaking repetition.  At
+the moment your thesis document is super simple -- it doesn't include
+any figures or calculated results.  As you analyze data and include
+results though, you're going to want an automated way to build those
+results into a final deliverable product e.g. the thesis or a paper.
+To be fair, having to press the "compile" button in a LaTeX document
+will be the least of your worries.  Where things get really painful is
+when you rely on GUIs to *produce the results* going into your LaTeX
+documents.  Here's the thing about using GUIs to produce your results
+-- whether you think so or not, you *will* end up needing to produce
+those results again and you *will* forget what steps you took to
+produce them.  Also you *won't* make a written record of those steps,
+as it too is incredibly painful.  The best way around this is to write
+scripts that perform the *equivalent* (not identical) GUI steps and
+then call those scripts from `build_phd.sh`.  The first paper I ever
+wrote I failed to heed this advice and paid for it.  Even though I
+wrote code to describe the simulation itself, I never recorded the
+correct order of steps to actually run it.  As it turns out, academia
+is slow as hell at giving feedback.  You'll submit a paper and be
+relatively care-free for 6 months.  Then, the review will come back --
+*this work is good rar rar rar but could be improved if you instead
+did x*, where *x* is some small variant on your existing work.  Cue
+inertia.  The good news is, you'll find in research there are nearly
+always equivalent command line tools to GUIs.
 
 To give a simple example, lets say you have some processing you need
 to perform over some data that requires either 20 clicks between
