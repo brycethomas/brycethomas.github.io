@@ -99,9 +99,87 @@ Now onto the better way.
 
 The optimal solution is to build out your `build_phd.sh` script to
 compute all of your results from the raw input data and then inject
-those results into your thesis.  An example of this is have code in
+those results into your thesis.  An example of this is to have code in
 `build_phd.sh` to generate an important .pdf figure from the raw input
-data as well as save that figure into your thesis directory.
+data as well as save that figure into your thesis directory.  So you
+end up with a directory structure like this:
+
+```
+phd
+├── build_phd.sh
+└── thesis
+    ├── main.tex
+    └── my_awesome_figure.pdf
+```
+
+where you've got:
+
+``` 
+\begin{figure} 
+\includegraphics{my_awesome_figure} 
+\end{figure}
+``` 
+
+somewhere in `main.tex` and `my_awesome_figure.pdf` has been generated
+as the output of some computation you perform in `build_phd.sh`.
+Another good example are simple variables derived from your
+computation.  Say you performed your analysis over a trace with 283
+widgets, or at least you think you did, until you found out there were
+actually 284 widgets.  If you'd been following the greedy strategy,
+you would have hard-coded the value 283 everywhere in thesis and need
+to go back and update it.  Treat it as a data point on the other hand
+means having your script output a `widgets.tex` file that simply reads
+`283`, and having your thesis include that variable with something
+like `\input{widgets}`.  So now your directory looks like:
+
+```
+phd
+├── build_phd.sh
+└── thesis
+    ├── main.tex
+    ├── my_awesome_figure.pdf
+    └── widgets.tex
+```
+
+You can obviously make your directory structure as simple or as
+complicated as you like.  The point which you've probably gotten by
+now is to automate the process leading from raw input data to results
+in your thesis.  Aside from all the aforementioned benefits of
+constructing your work this way, there's another nice by-product you
+get for free and the research community will thank you for it.  You
+see you Sir/Madam have just made your work reproducible.  Other fields
+don't have the luxury we do.  They have to settle for describing their
+methods in prose.  What you have is a non-ambiguous description of your
+method that someone else can execute with ease.  Even if you need to
+add anonymizing features to your data before distributing it, you've
+got a really solid skeleton to work off.
+
+So automation has been largely covered now.  Next on the agenda is how
+to avoid being a complete embarrassment to the discipline by losing
+all your shit at the last minute.  A little aside -- if you still only
+keep single local copies of important information, the kind that you
+would cry and/or get severely depressed about losing, do something
+about it immediately.  The simplest thing is to sign up for Dropbox.
+This beats copying crap to a USB drive a) because you don't have to
+think about it and b) because it decorrelates your failures.  If your
+house burns down or floods both your hard disk and your USB drive are
+toast (or aqua).  Anyway, where the real action is at is Scribtex
+(TODO: link).  
+
+
+
+Next on the agenda is collaboration.  You see you don't work in a
+vacuum during your PhD.  A storeroom maybe, but not a vacuum.  In
+particular, you'll be collaborating with your supervisor(s).  The good
+and/or bad news is, your supervisors will probably never read a line
+of code you write.  This means you get to practice (TODO:link)Works On
+My Machine (TM)-driven development.  What they will want to review
+though is your written works.
+
+so for the most part you .  What we'll go
+over now is collaboration, given that you're not going to be working
+in a vacuum.  To be fair, you mostly will be working in a vacuum, but
+you'll need to interface with your supervisors.
 
 At this point you might be wondering why you just went to all that
 effort to write a script to compile a latex document, you normally
