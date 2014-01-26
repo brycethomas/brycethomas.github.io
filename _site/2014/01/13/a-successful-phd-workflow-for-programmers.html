@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<title> A PhD Workflow for Programmers  - Vanilla Bean Creme</title>
+		<!-- For responsive site
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		-->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<link rel="author" href="/humans.txt">
+		<meta name="description" content="Description Goes Here">
+		<link rel="stylesheet" href="/css/style.css">
+		<!--[if IE 7]>
+			<html class="ie7"> 
+			<link rel="stylesheet" type="text/css" href="/css/font-awesome-ie7.min.css">
+		<![endif]-->
+		<!--[if IE 8]><html class="ie8"> <![endif]-->		
+	    <!--[if lt IE 9]>
+	      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	    <![endif]-->
+
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+		<link rel="shortcut icon" href="ico/favicon.png">	    
+	</head>
+	<body>
+	<!-- Header
+	    ================================================== -->
+	<header>
+
+	</header>
+
+	<div class="top-strip"></div>
+<main class="content">
+    <section class="container">
+    	<div class="row-fluid">
+    		<article class="home-icon">
+				<a href="/">
+					<i class="icon-home"></i> 
+				</a>
+			</article>
+			<article class="post">
+				<h5>13 January 2014</h5>
+				<h2 class="content">A PhD Workflow for Programmers</h2>
+				<section>
+					<p>I&#39;ve been working towards my PhD for almost three years now and have
+tried a lot of different tools for improving my workflow during that
+time.  For the sake of others about to start a PhD or currently
+working towards one, I&#39;ve decided to document what I&#39;ve found works.
+I can summarise it in two words -- <em>build automation</em>.  You want to be
+able to build all of your intellectual outputs with a single call on
+the command line.  Do this and you&#39;ll have an unambiguous record of
+the steps you took to produce your results while solving all nature of
+other problems along the way, which is what this post is largely
+about.</p>
+
+<p>The first thing you should do upon starting a PhD is this:</p>
+<div class="highlight"><pre><code class="bash language-bash" data-lang="bash"><span class="nb">cd</span> ~
+mkdir -p phd
+<span class="nb">cd </span>phd
+<span class="nb">echo</span> <span class="s2">&quot;echo \&quot;TODO: complete PhD\&quot;&quot;</span> &gt; build_phd.sh
+chmod a+x ./build_phd.sh
+build_phd.sh
+</code></pre></div>
+<p>The holy grail of automation now is to maintain the ability to
+reproduce all PhD outputs with a single call to <code>~/phd/build_phd.sh</code>.
+Allow me to get you off to a good start on building out
+<code>build_phd.sh</code>:</p>
+<div class="highlight"><pre><code class="bash language-bash" data-lang="bash"><span class="nb">cd</span> ~/phd
+mkdir -p thesis
+<span class="nb">cd </span>thesis
+touch main.tex
+</code></pre></div>
+<p>Then open <code>main.tex</code> and add the following:</p>
+<div class="highlight"><pre><code class="latex language-latex" data-lang="latex"><span class="k">\documentclass</span><span class="nb">{</span>article<span class="nb">}</span>
+<span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+TODO: write my thesis.
+<span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span>
+</code></pre></div>
+<p>Now open <code>~/phd/build_phd.sh</code> and edit it to read:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">echo -e &quot;compiling my PhD...&quot;
+cd thesis
+pdflatex main.tex
+bibtex main
+# Run twice to get references right.
+for run in {1..2}; do pdflatex main.tex; done
+cd ../
+</code></pre></div>
+<p>You&#39;ve now taken the first step towards automating your PhD build.  </p>
+
+<p>What&#39;s going to happen over time is, you&#39;re going to start writing
+your thesis in <code>main.tex</code>.  A big portion of it will just be your
+prose.  But, it will also contain figures, tables, variables --
+<em>data</em>.  Before we get onto how to handle this properly, let&#39;s talk
+about how not to.</p>
+
+<p>The greedy algorithm for completing your PhD is to take your
+interesting results (they expect you to generate these in return for
+your scholarship money), and manually enter/manipulate/copy/paste them
+into your thesis.  The problem with this strategy is that you&#39;re too
+optimistic.  The folly starts with thinking you&#39;re only ever going to
+have to produce and transfer your results into your thesis once.  In
+reality, you&#39;ll produce the results, slap them into your thesis, then
+a few re-readings later realise they&#39;re slightly wrong and/or crap in
+some way and need to be redone.  On a timescale of minutes to days,
+you should expect that the presentation of your results or the results
+themselves will change 10&#39;s of times.  At first this doesn&#39;t seem like
+much of a problem if you enjoy copy/paste.  Labouriousness isn&#39;t the
+most serious problem though.  The bigger issue is that by violating
+the DRY principle you&#39;ve now got your results in two places --
+wherever you output them when you produced them, and in your thesis
+document.  You&#39;re now relying on yourself to remember this and update
+your thesis accordingly when your results inevitably change.  Things
+only get worse when you start submitting your work for review.  As it
+turns out, academia is slow as shit when it comes to giving feedback.
+It typically takes on the order of months to get a reviewer&#39;s feedback
+on a paper.  And guess what -- they&#39;re probably going to be critical
+of at least one of your results or how they&#39;re presented.  So six
+months has passed and you now have NFI how you generated your results
+in the first place.  Revising prose is a walk in the park compared to
+revising results you generated 6 months ago.  See the thing about the
+copy/paste approach to getting results into your thesis is that it
+allows you to get lazy on results <em>production</em> as well.  I&#39;m telling
+you this from firsthand experience.  I once wrote a set of Java
+simulations for a paper I submitted.  Several months after I submitted
+the paper I got feedback indicating there were improvements that
+needed to be made.  I couldn&#39;t remember a damn thing about how I
+generated the results in the first place.  I couldn&#39;t even remember
+the name of the simulator I used.  I still can&#39;t.  Did I run it in
+Eclipse?  Did it use any special configuration file?  What tool did I
+use to plot the results?  What format was the intermediate data in
+between running the simulation and plotting the results?  Did I even
+write a script to plot the results, or did I do it all interactively
+on the command line?  This folks, is one very good reason to automate
+your PhD outputs.</p>
+
+<p>With the greedy (wrong) solution out of the way, onto the optimal
+solution.  The optimal solution is to build out your <code>build_phd.sh</code>
+script to compute all of your results from the raw input data and then
+inject those results into your thesis.  An example of this would be
+code in <code>build_phd.sh</code> that runs a simulation over your raw input
+data, generates an important figure <code>my_awesome_figure.pdf</code> and saves
+it into your thesis directory.  So you end up with a directory
+structure like this:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">phd
+├── build_phd.sh
+└── thesis
+    ├── main.tex
+    └── my_awesome_figure.pdf
+</code></pre></div>
+<p>where you&#39;ve got:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">\begin{figure} 
+\includegraphics{my_awesome_figure} 
+\end{figure}
+</code></pre></div>
+<p>somewhere in <code>main.tex</code>.  Now you can generate <code>my_awesome_figure.pdf</code>
+with a single call and you&#39;ve got a written record in <code>build_phd.sh</code>
+of precisely how you did it.  Another good candidate for automation
+are simple variables derived from your computation.  Say you performed
+your analysis over a trace with 283 widgets, or at least you think you
+did, until you found out there were actually 284 widgets.  If you&#39;d
+been following the greedy strategy, you would have hard-coded the
+value 283 everywhere in your thesis and need to go back and update it.
+To treat it as data instead of prose, you could have a step in your
+<code>build_phd.sh</code> script that emitted a file <code>widgets.tex</code> that simply
+read <code>283</code>.  In your thesis you then replace the literal <code>283</code> with
+<code>\input{widgets}</code>.</p>
+
+<p>So now your directory looks like:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">phd
+├── build_phd.sh
+└── thesis
+    ├── main.tex
+    ├── my_awesome_figure.pdf
+    └── widgets.tex
+</code></pre></div>
+<p>Now when you update your data processing and find there are now 284
+widgets, <code>284</code> automatically finds its way into your thesis.  You can
+obviously make your directory structure as simple or as complicated as
+you like.  The key point is to automate the whole sequence of events
+starting at input data and ending at the presentation of results in
+your thesis.</p>
+
+<p>Aside from the aforementioned benefits of build automation, there&#39;s
+another nice by-product you get for free and the research community
+will thank you for it.  By automating your work, you make your results
+trivally reproducible.  Other fields don&#39;t have this luxury.  They
+have to settle for describing their methods in prose.  You on the
+other hand get a non-ambiguous description of your method that someone
+else can execute, analyze and modify.  Even if you need to add
+anonymizing features to your data before distributing your code,
+you&#39;ve still got a very solid foundation to build from.</p>
+
+<p>So automation has largely been covered.  There&#39;s still the question of
+how this all works when you have to collaborate with others, primarily
+your supervisors.  The good and/or bad news is, your supervisors will
+probably never read nor execute a single line of your code.  They will
+read and review your written outputs though.  I&#39;ve found the best way
+to collaborate on academic works (papers, technical reports, thesis)
+is through Scribtex (TODO: link).  Scribtex lets you write and compile
+LaTeX documents in a web browser and share them with collaborators.
+The single best part about this is, your collaborators can view and
+edit the document in a web browser.  This is good, because now you&#39;re
+not relying on your collaborator&#39;s having LaTeX setup on their machine
+in order to modify the document.  This is an importance difference
+between Scribtex and Dropbox.  If you were using Dropbox, you could
+sync the documents with your supervisors just fine, <em>but</em>, you&#39;re now
+relying on your supervisors having LaTeX configured correctly.</p>
+
+<p>The other nice thing about Scribtex is that it includes a version
+history feature so when your supervisor asks what changed since the
+last time they saw it, you&#39;ve got a URL to point them too.  At this
+point I know what you&#39;re thinking -- how am I meant to automate my PhD
+build when my thesis document is hosted on the web?  Well, the good
+news is, Scribtex supports Git Distributed Version Control.  This
+means you can sync the document to your own computer into a
+subdirectory of your phd directory, run your build script and push the
+changes back to Scribtex when you&#39;re ready.  This is actually good for
+other reasons too.  Firstly, it&#39;s now backed up locally on your
+machine decorrelating your failures.  You see it&#39;s 2014 and losing
+critical data because you only ever kept a single copy or multiple
+copies in one geographic location makes you an embarrassment to the
+discipline.  The second reason is, <em>you</em> shouldn&#39;t be writing in a web
+browser -- leave that to your supervisors who will be making minor
+edits.  You want to be using a proper text editor.  Seriously, you&#39;re
+going to write a lot throughout your PhD, and you&#39;ll start realising
+productivity gains after a few days of using a decent text editor.  So
+bite the bullet, pick one, and learn it.  If you can&#39;t decide which,
+use Emacs.</p>
+
+<p>A little caveat re. &quot;you should definitely use Scribtex&quot; -- depending
+on your supervisors, Dropbox may suffice.  You think you know where
+this is going, don&#39;t you?  &quot;If <em>my</em> supervisors have LaTeX setup on
+all their machines, then Scribtex provides no extra value to us&quot;.
+Actually, that&#39;s not the reason.  The reason is, there&#39;s the distinct
+possibility your supervisor will never make <em>any</em> changes to your
+<code>.tex</code> documents.  Yup.  Instead, they&#39;ll print out the PDF, write all
+over it in red pen and scan and email the whole thing back to you
+instead.  I shit you not.  If this baffles you at first, you&#39;re
+probably not alone.  It&#39;s actually not as inefficient or irrational as
+you might think though.  See as an undergrad you developed the view
+that printing and scanning is a time and cost expensive operation,
+which it was on your $29 bubblejet.  In any given week you were
+practically trading off feeding yourself vs. feeding your printer more
+ink catridges. Your professors on the other hand have been living
+above the poverty line and have become accustom to creature comforts
+like printing allowances.  On business-grade printers, printing is
+usually pretty pain-free and cost effective.  And despite advances in
+tablet readers, printed documents are still the most tactile format
+and the easiest to review.  Especially in the Journal of Archaic
+Layout&#39;s double-column-3-point-no-margin page format.  So
+unfortunately here your incentives aren&#39;t aligned.  You&#39;d rather your
+supervisors just edit the <code>.tex</code> file, but they&#39;d rather just scribble
+on a hard copy.  The other reason your supervisors might prefer
+printing documents is that reading your paper only reaches top
+priority when they board a plane and the best available alternative is
+in-flight magazine.  You think I&#39;m joking, I&#39;m not.  If you want your
+writing reviewed, get a printed copy to your supervisor the day before
+they have a flight scheduled.</p>
+
+<p>So anyway, just a quick word on Git.  It&#39;s a Distributed Version
+Control System that you can read all about on the Interwebs.  I&#39;ve
+already mentioned that you can and should use it with Scribtex.  You
+should also use it for your main <code>phd</code> directory too though.  Go
+request a free micro plan on Github and get setup.  Then, turn your
+top level <code>phd</code> directory into a Git repository and push it to Github.
+The idea with Scribtex integration is to add each scribtex document
+(e.g. <em>paper1</em>, <em>paper2</em>) as a Git submodule to your main repository.
+This way you can do all your phd build automation, writing results
+into the Scribtex directories and pushing those changes back to
+Scribtex whenever your ready.  Your supervisors won&#39;t know (and
+doesn&#39;t care) that you&#39;re using Git to manage your Scribtex documents.
+It&#39;s for the benefit of <em>your</em> workflow.  Having your documents hosted
+on Scribtex just gives you the highest probability of having your
+supervisors actually edit the <code>.tex</code>, rather than the
+print/scribble/scan routine described above.  By the way, reassure
+your supervisors they can&#39;t break anything by editing the Scribtex
+document.  There&#39;s a version history on Scribtex as well as a Git
+version history now that you&#39;re using Scribtex with Git.</p>
+
+<p>So that&#39;s pretty much it.  Get the tooling in place to automate the
+build of your PhD and to ease collaboration with your supervisors.  I
+should probably leave it at that, but there&#39;s one other sensitive
+topic that needs to be addressed -- Microsoft Word.  Like a programmer
+that refuses to learn how to touch type, occasionally you&#39;ll come
+across an academic that refuses to learn LaTeX.  To be clear, LaTeX is
+a massive pain in the arse, but at least it&#39;s a plain text pain in the
+arse.  With Word, it&#39;s very hard (if not impossible?) to automate your
+PhD build as described above because you have no way to inject
+variables or figures into your document.  You&#39;re also missing out on
+working in a good text editor.  Yes, both LaTeX and good text editors
+both have a steeper learning curve than Word, but you&#39;ll reach the
+intersection point pretty quickly during the course of completing a
+PhD.</p>
+
+<p>And now for some disclaimers.  My PhD is very much data-driven -- take
+input trace data, perform computations over it and generate results.
+If you&#39;re doing a PhD in pure mathematics then maybe the workflow
+above doesn&#39;t make sense for you.  But you&#39;re a PhD candidate now and
+smart enough to take what&#39;s relevant and leave the rest.  Another
+thing I can see some people having a sook about - the command line.  I
+was awarded a degree in Information Technology specializing in
+software development, without ever having to touch the command line.
+If someone managed to construct your degree in such a way that you
+miraculously missed out on this too, all dem commands may look
+daunting.  But if you&#39;re starting a PhD you&#39;ll be around a few years,
+and it pays to learn this stuff.  Besides, it turns out experience
+with Linux, build automation and distributed version control are
+is a useful thing for software developers to have. </p>
+
+					<hr>
+				</section>
+				<section style="font-weight:bold; margin-bottom: 2em;">
+					 
+							<a rel="prev" class="a-hover"href="/2013/10/01/tenth-post.html"><i class="icon-double-angle-left"></i> Bluth</a>
+						
+						 
+							<a rel="next" style="float:right" class="a-hover"href="/2014/01/24/one-weird-tip-to-reduce-runtime-a-little-each-iteration.html">One Weird Tip to Reduce Runtime a Little each Iteration <i class=" icon-double-angle-right"></i></a>
+					
+				</section>
+			</article>
+		</div>
+	</section>
+</main>
+
+
+	<footer>
+		<div class="container">
+			<a href="http://richbray.me/frap/">Frappuccino</a> | Copyright or profile stuff goes here
+		</div>
+	</footer>
+
+	<!-- Footer
+	    ================================================== -->
+
+	<!-- Javascripts 
+	    ================================================= -->
+	<script src="/js/jquery.min.js"></script>
+	<script src="/js/custom.js"></script>
+
+    <!-- Analytics
+    ================================================== -->
+    <script>
+		// analytics code
+    </script>	
+	</body>
+</html>

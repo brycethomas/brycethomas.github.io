@@ -1,18 +1,20 @@
 ---
 layout: post_page
-title: A Successful PhD Workflow for Programmers
+title: A PhD Workflow for Programmers
 ---
 
 I've been working towards my PhD for almost three years now and have
 tried a lot of different tools for improving my workflow during that
 time.  For the sake of others about to start a PhD or currently
-studying towards one, I've decided to document what I've found works.
-I can summarise it in two words -- *plain text*.  You want all of the
-artifacts you create throughout your PhD to be reproducible from plain
-text.  Not only is this critical for automating the production (and
-re-production) of your results, but mastering and working in a plain
-text editor turns out to be a fairly enjoyable experience.  If I were
-to start my PhD over, the first thing I would do is this:
+working towards one, I've decided to document what I've found works.
+I can summarise it in two words -- *build automation*.  You want to be
+able to build all of your intellectual outputs with a single call on
+the command line.  Do this and you'll have an unambiguous record of
+the steps you took to produce your results while solving all nature of
+other problems along the way, which is what this post is largely
+about.
+
+The first thing you should do upon starting a PhD is this:
 
 ```bash
 cd ~
@@ -23,8 +25,8 @@ chmod a+x ./build_phd.sh
 build_phd.sh
 ```
 
-The holy grail now is to maintain the ability to compile the entirety
-of your PhD artifacts with a single call to `~/phd/build_phd.sh`.  
+The holy grail of automation now is to maintain the ability to
+reproduce all PhD outputs with a single call to `~/phd/build_phd.sh`.
 Allow me to get you off to a good start on building out
 `build_phd.sh`:
 
@@ -37,14 +39,14 @@ touch main.tex
 
 Then open `main.tex` and add the following:
 
-```
+```latex
 \documentclass{article}
 \begin{document}
 TODO: write my thesis.
 \end{document}
 ``` 
 
-Now open `~/phd/build_phd.sh` and edit it so it reads:
+Now open `~/phd/build_phd.sh` and edit it to read:
 
 ```
 echo -e "compiling my PhD..."
@@ -56,53 +58,62 @@ for run in {1..2}; do pdflatex main.tex; done
 cd ../
 ```
 
-You've now taken the first step towards automating the build of your
-PhD.  What's going to happen over time is, you're going to start
-writing your thesis in `main.tex`.  A big portion of it will just be
-your amazing prose.  But, you're also going to have figures, tables,
-variables, *data*.  Before we get onto how to handle this properly,
-let's talk about how not to.
+You've now taken the first step towards automating your PhD build.  
+
+What's going to happen over time is, you're going to start writing
+your thesis in `main.tex`.  A big portion of it will just be your
+prose.  But, it will also contain figures, tables, variables --
+*data*.  Before we get onto how to handle this properly, let's talk
+about how not to.
 
 The greedy algorithm for completing your PhD is to take your
-interesting results (this is what they expect you to generate in
-exchange for your scholarship money), and then manually
-enter/manipulate or copy/paste them into your thesis.  The problem
-with this strategy is that you're too optimistic.  The folly starts
-with thinking you're only ever going to have to produce and transfer
-your results into your thesis document once.  In reality, you'll
-produce your results, slap them into your thesis, then a few
-re-readings later realise they're slightly wrong and/or crap in some
-way and need to be reproduced/further prettified.  On a timescale of
-minutes to days, you should expect that either the presentation of the
-results or the results themselves will need to updated 10's of times.
-At first this doesn't seem like much of a problem if you enjoy
-copy/paste.  The more serious problem though is that by violating the
-DRY principle you've now got your results in two places -- wherever
-you output them when you produced them, and in your thesis document.
-You're now relying on yourself to remember this and update your thesis
-accordingly when your results inevitably change.  Things only get
-worse when you start submitting your work for review.  As it turns
-out, academia is slow as shit with giving feedback.  It typically
-takes on the order of months to get a reviewer's feedback on a paper.
-And guess what -- they're probably going to be critical of at least
-one of your results or how they're presented.  By now you have no
-fucking clue how you generated your results in the first place -- it's
-been 6 months.  If you thinking revising the prose of a paper is
-painful, think about revising your results.  See the thing about the
+interesting results (they expect you to generate these in return for
+your scholarship money), and manually enter/manipulate/copy/paste them
+into your thesis.  The problem with this strategy is that you're too
+optimistic.  The folly starts with thinking you're only ever going to
+have to produce and transfer your results into your thesis once.  In
+reality, you'll produce the results, slap them into your thesis, then
+a few re-readings later realise they're slightly wrong and/or crap in
+some way and need to be redone.  On a timescale of minutes to days,
+you should expect that the presentation of your results or the results
+themselves will change 10's of times.  At first this doesn't seem like
+much of a problem if you enjoy copy/paste.  Labouriousness isn't the
+most serious problem though.  The bigger issue is that by violating
+the DRY principle you've now got your results in two places --
+wherever you output them when you produced them, and in your thesis
+document.  You're now relying on yourself to remember this and update
+your thesis accordingly when your results inevitably change.  Things
+only get worse when you start submitting your work for review.  As it
+turns out, academia is slow as shit when it comes to giving feedback.
+It typically takes on the order of months to get a reviewer's feedback
+on a paper.  And guess what -- they're probably going to be critical
+of at least one of your results or how they're presented.  So six
+months has passed and you now have NFI how you generated your results
+in the first place.  Revising prose is a walk in the park compared to
+revising results you generated 6 months ago.  See the thing about the
 copy/paste approach to getting results into your thesis is that it
-allows you to get lazy on the *production* side as well.  6 months on
-you won't remember what scripts you ran in what order or what magic
-sequence of buttons you pressed in Excel to generate your results.
-And it's easy to produce your results in this way when you convince
-yourself you'll only have to transfer them over to a document once.
-Now onto the better way.
+allows you to get lazy on results *production* as well.  I'm telling
+you this from firsthand experience.  I once wrote a set of Java
+simulations for a paper I submitted.  Several months after I submitted
+the paper I got feedback indicating there were improvements that
+needed to be made.  I couldn't remember a damn thing about how I
+generated the results in the first place.  I couldn't even remember
+the name of the simulator I used.  I still can't.  Did I run it in
+Eclipse?  Did it use any special configuration file?  What tool did I
+use to plot the results?  What format was the intermediate data in
+between running the simulation and plotting the results?  Did I even
+write a script to plot the results, or did I do it all interactively
+on the command line?  This folks, is one very good reason to automate
+your PhD outputs.
 
-The optimal solution is to build out your `build_phd.sh` script to
-compute all of your results from the raw input data and then inject
-those results into your thesis.  An example of this is to have code in
-`build_phd.sh` to generate an important .pdf figure from the raw input
-data as well as save that figure into your thesis directory.  So you
-end up with a directory structure like this:
+With the greedy (wrong) solution out of the way, onto the optimal
+solution.  The optimal solution is to build out your `build_phd.sh`
+script to compute all of your results from the raw input data and then
+inject those results into your thesis.  An example of this would be
+code in `build_phd.sh` that runs a simulation over your raw input
+data, generates an important figure `my_awesome_figure.pdf` and saves
+it into your thesis directory.  So you end up with a directory
+structure like this:
 
 ```
 phd
@@ -120,17 +131,20 @@ where you've got:
 \end{figure}
 ``` 
 
-somewhere in `main.tex` and `my_awesome_figure.pdf` has been generated
-as the output of some computation you perform in `build_phd.sh`.
-Another good example are simple variables derived from your
-computation.  Say you performed your analysis over a trace with 283
-widgets, or at least you think you did, until you found out there were
-actually 284 widgets.  If you'd been following the greedy strategy,
-you would have hard-coded the value 283 everywhere in thesis and need
-to go back and update it.  Treat it as a data point on the other hand
-means having your script output a `widgets.tex` file that simply reads
-`283`, and having your thesis include that variable with something
-like `\input{widgets}`.  So now your directory looks like:
+somewhere in `main.tex`.  Now you can generate `my_awesome_figure.pdf`
+with a single call and you've got a written record in `build_phd.sh`
+of precisely how you did it.  Another good candidate for automation
+are simple variables derived from your computation.  Say you performed
+your analysis over a trace with 283 widgets, or at least you think you
+did, until you found out there were actually 284 widgets.  If you'd
+been following the greedy strategy, you would have hard-coded the
+value 283 everywhere in your thesis and need to go back and update it.
+To treat it as data instead of prose, you could have a step in your
+`build_phd.sh` script that emitted a file `widgets.tex` that simply
+read `283`.  In your thesis you then replace the literal `283` with
+`\input{widgets}`.
+
+So now your directory looks like:
 
 ```
 phd
@@ -141,177 +155,136 @@ phd
     └── widgets.tex
 ```
 
-You can obviously make your directory structure as simple or as
-complicated as you like.  The point which you've probably gotten by
-now is to automate the process leading from raw input data to results
-in your thesis.  Aside from all the aforementioned benefits of
-constructing your work this way, there's another nice by-product you
-get for free and the research community will thank you for it.  You
-see you Sir/Madam have just made your work reproducible.  Other fields
-don't have the luxury we do.  They have to settle for describing their
-methods in prose.  What you have is a non-ambiguous description of your
-method that someone else can execute with ease.  Even if you need to
-add anonymizing features to your data before distributing it, you've
-got a really solid skeleton to work off.
+Now when you update your data processing and find there are now 284
+widgets, `284` automatically finds its way into your thesis.  You can
+obviously make your directory structure as simple or as complicated as
+you like.  The key point is to automate the whole sequence of events
+starting at input data and ending at the presentation of results in
+your thesis.
 
-So automation has been largely covered now.  Next on the agenda is how
-to avoid being a complete embarrassment to the discipline by losing
-all your shit at the last minute.  A little aside -- if you still only
-keep single local copies of important information, the kind that you
-would cry and/or get severely depressed about losing, do something
-about it immediately.  The simplest thing is to sign up for Dropbox.
-This beats copying crap to a USB drive a) because you don't have to
-think about it and b) because it decorrelates your failures.  If your
-house burns down or floods both your hard disk and your USB drive are
-toast (or aqua).  Anyway, where the real action is at is Scribtex
-(TODO: link).  
+Aside from the aforementioned benefits of build automation, there's
+another nice by-product you get for free and the research community
+will thank you for it.  By automating your work, you make your results
+trivally reproducible.  Other fields don't have this luxury.  They
+have to settle for describing their methods in prose.  You on the
+other hand get a non-ambiguous description of your method that someone
+else can execute, analyze and modify.  Even if you need to add
+anonymizing features to your data before distributing your code,
+you've still got a very solid foundation to build from.
 
+So automation has largely been covered.  There's still the question of
+how this all works when you have to collaborate with others, primarily
+your supervisors.  The good and/or bad news is, your supervisors will
+probably never read nor execute a single line of your code.  They will
+read and review your written outputs though.  I've found the best way
+to collaborate on academic works (papers, technical reports, thesis)
+is through Scribtex (TODO: link).  Scribtex lets you write and compile
+LaTeX documents in a web browser and share them with collaborators.
+The single best part about this is, your collaborators can view and
+edit the document in a web browser.  This is good, because now you're
+not relying on your collaborator's having LaTeX setup on their machine
+in order to modify the document.  This is an importance difference
+between Scribtex and Dropbox.  If you were using Dropbox, you could
+sync the documents with your supervisors just fine, *but*, you're now
+relying on your supervisors having LaTeX configured correctly.
 
+The other nice thing about Scribtex is that it includes a version
+history feature so when your supervisor asks what changed since the
+last time they saw it, you've got a URL to point them too.  At this
+point I know what you're thinking -- how am I meant to automate my PhD
+build when my thesis document is hosted on the web?  Well, the good
+news is, Scribtex supports Git Distributed Version Control.  This
+means you can sync the document to your own computer into a
+subdirectory of your phd directory, run your build script and push the
+changes back to Scribtex when you're ready.  This is actually good for
+other reasons too.  Firstly, it's now backed up locally on your
+machine decorrelating your failures.  You see it's 2014 and losing
+critical data because you only ever kept a single copy or multiple
+copies in one geographic location makes you an embarrassment to the
+discipline.  The second reason is, *you* shouldn't be writing in a web
+browser -- leave that to your supervisors who will be making minor
+edits.  You want to be using a proper text editor.  Seriously, you're
+going to write a lot throughout your PhD, and you'll start realising
+productivity gains after a few days of using a decent text editor.  So
+bite the bullet, pick one, and learn it.  If you can't decide which,
+use Emacs.
 
-Next on the agenda is collaboration.  You see you don't work in a
-vacuum during your PhD.  A storeroom maybe, but not a vacuum.  In
-particular, you'll be collaborating with your supervisor(s).  The good
-and/or bad news is, your supervisors will probably never read a line
-of code you write.  This means you get to practice (TODO:link)Works On
-My Machine (TM)-driven development.  What they will want to review
-though is your written works.
+A little caveat re. "you should definitely use Scribtex" -- depending
+on your supervisors, Dropbox may suffice.  You think you know where
+this is going, don't you?  "If *my* supervisors have LaTeX setup on
+all their machines, then Scribtex provides no extra value to us".
+Actually, that's not the reason.  The reason is, there's the distinct
+possibility your supervisor will never make *any* changes to your
+`.tex` documents.  Yup.  Instead, they'll print out the PDF, write all
+over it in red pen and scan and email the whole thing back to you
+instead.  I shit you not.  If this baffles you at first, you're
+probably not alone.  It's actually not as inefficient or irrational as
+you might think though.  See as an undergrad you developed the view
+that printing and scanning is a time and cost expensive operation,
+which it was on your $29 bubblejet.  In any given week you were
+practically trading off feeding yourself vs. feeding your printer more
+ink catridges. Your professors on the other hand have been living
+above the poverty line and have become accustom to creature comforts
+like printing allowances.  On business-grade printers, printing is
+usually pretty pain-free and cost effective.  And despite advances in
+tablet readers, printed documents are still the most tactile format
+and the easiest to review.  Especially in the Journal of Archaic
+Layout's double-column-3-point-no-margin page format.  So
+unfortunately here your incentives aren't aligned.  You'd rather your
+supervisors just edit the `.tex` file, but they'd rather just scribble
+on a hard copy.  The other reason your supervisors might prefer
+printing documents is that reading your paper only reaches top
+priority when they board a plane and the best available alternative is
+in-flight magazine.  You think I'm joking, I'm not.  If you want your
+writing reviewed, get a printed copy to your supervisor the day before
+they have a flight scheduled.
 
-so for the most part you .  What we'll go
-over now is collaboration, given that you're not going to be working
-in a vacuum.  To be fair, you mostly will be working in a vacuum, but
-you'll need to interface with your supervisors.
+So anyway, just a quick word on Git.  It's a Distributed Version
+Control System that you can read all about on the Interwebs.  I've
+already mentioned that you can and should use it with Scribtex.  You
+should also use it for your main `phd` directory too though.  Go
+request a free micro plan on Github and get setup.  Then, turn your
+top level `phd` directory into a Git repository and push it to Github.
+The idea with Scribtex integration is to add each scribtex document
+(e.g. *paper1*, *paper2*) as a Git submodule to your main repository.
+This way you can do all your phd build automation, writing results
+into the Scribtex directories and pushing those changes back to
+Scribtex whenever your ready.  Your supervisors won't know (and
+doesn't care) that you're using Git to manage your Scribtex documents.
+It's for the benefit of *your* workflow.  Having your documents hosted
+on Scribtex just gives you the highest probability of having your
+supervisors actually edit the `.tex`, rather than the
+print/scribble/scan routine described above.  By the way, reassure
+your supervisors they can't break anything by editing the Scribtex
+document.  There's a version history on Scribtex as well as a Git
+version history now that you're using Scribtex with Git.
 
-At this point you might be wondering why you just went to all that
-effort to write a script to compile a latex document, you normally
-just do that by pressing the pretty play button in LyX, right?  Wrong.
-The perennial issue you're going to face if you rely on GUIs to
-produce results is lack of automation and painstaking repetition.  At
-the moment your thesis document is super simple -- it doesn't include
-any figures or calculated results.  As you analyze data and include
-results though, you're going to want an automated way to build those
-results into a final deliverable product e.g. the thesis or a paper.
-To be fair, having to press the "compile" button in a LaTeX document
-will be the least of your worries.  Where things get really painful is
-when you rely on GUIs to *produce the results* going into your LaTeX
-documents.  Here's the thing about using GUIs to produce your results
--- whether you think so or not, you *will* end up needing to produce
-those results again and you *will* forget what steps you took to
-produce them.  Also you *won't* make a written record of those steps,
-as it too is incredibly painful.  The best way around this is to write
-scripts that perform the *equivalent* (not identical) GUI steps and
-then call those scripts from `build_phd.sh`.  The first paper I ever
-wrote I failed to heed this advice and paid for it.  Even though I
-wrote code to describe the simulation itself, I never recorded the
-correct order of steps to actually run it.  As it turns out, academia
-is slow as hell at giving feedback.  You'll submit a paper and be
-relatively care-free for 6 months.  Then, the review will come back --
-*this work is good rar rar rar but could be improved if you instead
-did x*, where *x* is some small variant on your existing work.  Cue
-inertia.  The good news is, you'll find in research there are nearly
-always equivalent command line tools to GUIs.
+So that's pretty much it.  Get the tooling in place to automate the
+build of your PhD and to ease collaboration with your supervisors.  I
+should probably leave it at that, but there's one other sensitive
+topic that needs to be addressed -- Microsoft Word.  Like a programmer
+that refuses to learn how to touch type, occasionally you'll come
+across an academic that refuses to learn LaTeX.  To be clear, LaTeX is
+a massive pain in the arse, but at least it's a plain text pain in the
+arse.  With Word, it's very hard (if not impossible?) to automate your
+PhD build as described above because you have no way to inject
+variables or figures into your document.  You're also missing out on
+working in a good text editor.  Yes, both LaTeX and good text editors
+have a steeper learning curve than Word, but you'll reach the
+intersection point pretty quickly during the course of completing a
+PhD.
 
-To give a simple example, lets say you have some processing you need
-to perform over some data that requires either 20 clicks between
-various items in a GUI or can be automated in code.  Let's assume the
-output is the figure *my_cool_result.pdf* and it needs to make its way
-into your thesis.  Recall our directory structure already looks like
-this:
-
-TODO: show structure.
-
-We can add a line to `build_phd.sh` like:
-
-`python my_cool_result_generator.py > ./thesis/my_cool_result.pdf`.
-
-`my_cool_result_generator.py` is now your written record of the steps
-required to produce that result.  In programming, people always tell
-you to write clear enough code that you could come back to it in 6
-months and know what you were doing.  Even bad code is a record.  If
-you rely on GUIs you're coming back to your work in 6 months with no
-record of anything.
-
-### Microsoft Word in Academia 
-
-Let's get this cleared up.  LaTeX is the worst typesetting system
-except for all the rest.  Which makes LaTeX better than Word.  Word is
-a great tool for basic documents written by your Mom, but not for your
-thesis.  The biggest reason not to use Word is it breaks the cardinal
-rule: *everything in plain text*.  Try automating in Word the
-insertion of figures derived from your calculated results and let me
-know how you go.  The second reason not to use Word is that like most
-GUI tools it makes for a lowsy text editor.  You'll write a lot
-throughout a PhD so it's worth taking the time to learn a decent text
-editor (e.g. Emacs, Vim, etc.).  One of your objectives, for both your
-PhD and becoming a more efficient computer user in general should be
-to move away from relying on the mouse.  The GUI itself was a great
-idea for making apps easy to learn and discoverable.  The computer
-mouse, though lauded as a great invention, is not a particularly
-efficient way to navigate a computer.  It's not even a particularly
-efficient way to navigate a GUI for that matter.  If you've ever used
-a tool like Vimium in Google Chrome you'll see what I mean.  With a
-single key combination you can bring up these little label thingies
-over all the clickable links that prompt you to enter another short
-letter combination to follow that link, rather than futzing around
-with the mouse.  GUI and keyboards don't need to be mutually
-exclusive, but I digress.  There other reasons not to use Word as
-well.  Firstly, as crap as PDF (the output of LaTeX) is as an editing
-format, at least you reliably know other people will be able of
-reading it.  There's nothing worse than getting an email *Oh hai I've
-attached my paper blurblurblur.doc pls read and give feedback tnx*.
-And then you don't have Word, so you open it in a purportedly Word
-compatible program and it's mangled, usually not quite enough for you
-to actually know that it's mangled.  You usually just assume the
-sender messed something up.  Seriously though, even relatively
-unsophisticated computer users have multiple devices now running
-different operating systems.  Expecting other people to have Word
-installed, especially in a technical field, is an insult.  There's
-other lesser problems with Word too, like the default font choices
-among other things looking like crap.  LaTeX was built for producing
-publication quality works, and for all its shortcomings, it at least
-does that.  Also, because LaTeX is plain text, it plays nice with
-version control, which I'll get to shortly.
-
-### How Not to Lose All Your Shit and About Version Control 
-
-It doesn't happen as much anymore, but every now and then I hear a
-story about how so and so lost all their hard work when their hard
-drive failed.  For Christ's sake, it's 2014, at least get a Dropbox
-account.  There is a better option though and that's version control.
-If you've been following along so far you've already made a concerted
-effort to keep all your various PhD artifacts in plain text which just
-so happens is version control's forte.  Being a student you can get a
-free Micro account on GitHub, so go get one.  This will give you a way
-to keep a versioned copy of all your work stored privately on the
-cloud.  Dropbox kind of sort of has version control if you look hard
-enough for it, but it's rudimentary.  Dropbox also doesn't have any
-notion of branching, 
-
-### Collaborating With Your Supervisor(s) on Papers
-
-I've had a moan already about receiving Microsoft Word documents from
-people who expect me to be able to do something with it.  Then I
-praised LaTeX as a superior option because it produces PDF output.
-What I conveniently failed to mention is that when it comes to editing
-documents, there's even less chance the people you're sending stuff to
-have LaTeX installed than even Word.  Plus, even if they do, chances
-are you'll decide you want to use some obscure LaTeX package that your
-supervisor doesn't have installed, and so the document fails to build
-on their machine.
-
-<!--  Once you start writing your thesis (and papers) you're
-going to f
-ind they need figures.  Those figures are going to be output
-as the result of processing data.  Chances are you're going to mess up
-that processing (and in turn your figures) many times over before you
-finally get it right.  Have you ever had to work on a document in
-Microsoft Word that required you insert a figure you created using
-another program?  And you found the figure didn't look quite right
-about 10,000 times over causing you to constantly click back and forth
-between programs, reproducing the figure and then reinserting the
-latest version into the document?  That's what we're trying to avoid
-here.  LaTeX at least has the notion of referencing figures as file
-names, so you can at least just update the file, manually recompile
-and get the result you were after.  At a minimum you ought to  
-
- where you needed to insert before Have you ever been
-using Microsoft Word, had to insert a figure and -->
+And now for some disclaimers.  My PhD is very much data-driven -- take
+input trace data, perform computations over it and generate results.
+If you're doing a PhD in pure mathematics then maybe the workflow
+above doesn't make sense for you.  But you're a PhD candidate now and
+smart enough to take what's relevant and leave the rest.  Another
+thing I can see some people having a sook about - the command line.  I
+was awarded a degree in Information Technology specializing in
+software development, without ever having to touch the command line.
+If someone managed to construct your degree in such a way that you
+miraculously missed out on this too, all dem commands may look
+daunting.  But if you're starting a PhD you'll be around a few years,
+and it pays to learn this stuff.  Besides, it turns out experience
+with Linux, build automation and distributed version control are
+is a useful thing for software developers to have. 
