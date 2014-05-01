@@ -49,14 +49,14 @@
 tried a lot of different tools for improving my workflow during that
 time.  For the sake of others about to start a PhD or currently
 working towards one, I&#39;ve decided to document what I&#39;ve found works.
-I can summarise it in two words -- <em>build automation</em>.  You want to be
-able to build all of your intellectual outputs with a single call on
-the command line.  Do this and you&#39;ll have an unambiguous record of
-the steps you took to produce your results while solving all nature of
-other problems along the way, which is what this post is largely
-about.</p>
+I can summarise it in two words -- <em>build automation</em>.  Ideally you
+want to be able to build all of your intellectual outputs with a
+single call on the command line.  Do this and you&#39;ll have an
+unambiguous record of the steps you took to produce your results while
+solving all nature of other problems along the way, which is what this
+post is largely about.</p>
 
-<p>The first thing you should do upon starting a PhD is this:</p>
+<p>I&#39;d suggest starting your PhD like this:</p>
 <div class="highlight"><pre><code class="bash language-bash" data-lang="bash"><span class="nb">cd</span> ~
 mkdir -p phd
 <span class="nb">cd </span>phd
@@ -64,7 +64,10 @@ mkdir -p phd
 chmod a+x ./build_phd.sh
 build_phd.sh
 </code></pre></div>
-<p>The holy grail of automation now is to maintain the ability to
+<p>This sets you up with a <code>phd</code> directory and an executable main build
+script named <code>build_phd.sh</code>.</p>
+
+<p>The objective from this point forward is to maintain the ability to
 reproduce all PhD outputs with a single call to <code>~/phd/build_phd.sh</code>.
 Allow me to get you off to a good start on building out
 <code>build_phd.sh</code>:</p>
@@ -88,58 +91,59 @@ bibtex main
 for run in {1..2}; do pdflatex main.tex; done
 cd ../
 </code></pre></div>
-<p>You&#39;ve now taken the first step towards automating your PhD build.  </p>
+<p>At this point you&#39;ve got a main LaTeX document setup for your thesis
+that gets recompiled every time you run <code>build_phd.sh</code>.</p>
 
-<p>What&#39;s going to happen over time is, you&#39;re going to start writing
-your thesis in <code>main.tex</code>.  A big portion of it will just be your
-prose.  But, it will also contain figures, tables, variables --
-<em>data</em>.  Before we get onto how to handle this properly, let&#39;s talk
-about how not to.</p>
+<p>The idea is that over time you&#39;ll start fleshing out your thesis in
+<code>main.tex</code>.  A big portion of it will just be your prose.  But, it
+will also contain figures, tables, variables -- <em>data</em>.  Before we get
+onto how to handle this properly, let&#39;s talk about how not to.</p>
 
-<p>The greedy algorithm for completing your PhD is to take your
-interesting results (they expect you to generate these in return for
-your scholarship money), and manually enter/manipulate/copy/paste them
-into your thesis.  The problem with this strategy is that you&#39;re too
-optimistic.  The folly starts with thinking you&#39;re only ever going to
-have to produce and transfer your results into your thesis once.  In
-reality, you&#39;ll produce the results, slap them into your thesis, then
-a few re-readings later realise they&#39;re slightly wrong and/or crap in
-some way and need to be redone.  On a timescale of minutes to days,
-you should expect that the presentation of your results or the results
-themselves will change 10&#39;s of times.  At first this doesn&#39;t seem like
-much of a problem if you enjoy copy/paste.  Labouriousness isn&#39;t the
-most serious problem though.  The bigger issue is that by violating
-the DRY principle you&#39;ve now got your results in two places --
-wherever you output them when you produced them, and in your thesis
-document.  You&#39;re now relying on yourself to remember this and update
-your thesis accordingly when your results inevitably change.  Things
-only get worse when you start submitting your work for review.  As it
-turns out, academia is slow as shit when it comes to giving feedback.
-It typically takes on the order of months to get a reviewer&#39;s feedback
-on a paper.  And guess what -- they&#39;re probably going to be critical
-of at least one of your results or how they&#39;re presented.  So six
-months has passed and you now have NFI how you generated your results
-in the first place.  Revising prose is a walk in the park compared to
-revising results you generated 6 months ago.  See the thing about the
-copy/paste approach to getting results into your thesis is that it
-allows you to get lazy on results <em>production</em> as well.  I&#39;m telling
-you this from firsthand experience.  I once wrote a set of Java
-simulations for a paper I submitted.  Several months after I submitted
-the paper I got feedback indicating there were improvements that
-needed to be made.  I couldn&#39;t remember a damn thing about how I
-generated the results in the first place.  I couldn&#39;t even remember
-the name of the simulator I used.  I still can&#39;t.  Did I run it in
-Eclipse?  Did it use any special configuration file?  What tool did I
-use to plot the results?  What format was the intermediate data in
-between running the simulation and plotting the results?  Did I even
-write a script to plot the results, or did I do it all interactively
-on the command line?  This folks, is one very good reason to automate
-your PhD outputs.</p>
+<p>The greedy algorithm for completing a PhD is to take your interesting
+results (they expect you to generate these in return for your
+scholarship stipend) and manually enter/manipulate/copy/paste them
+into your thesis.  The problem with this strategy is your optimism.
+The folly starts with thinking you&#39;re only ever going to have to
+produce and transfer your results into your thesis once.  In reality,
+you&#39;ll produce the results, slap them into your thesis then later
+realise they&#39;re slightly wrong and/or crap in some way and need to be
+redone.  On a timescale of minutes to days, you should expect the
+presentation of your results (or the results themselves) will change
+10&#39;s of times.  At first this doesn&#39;t seem like much of a problem if
+you enjoy copy/paste.  Labouriousness isn&#39;t the only problem though.
+The bigger issue is that by violating the DRY principle you&#39;ve now got
+your results in two places -- wherever you output them when you
+produced them, and in your thesis document.  You&#39;re now relying on
+yourself to remember this and update your thesis accordingly when your
+results inevitably change.  </p>
 
-<p>With the greedy (wrong) solution out of the way, onto the optimal
-solution.  The optimal solution is to build out your <code>build_phd.sh</code>
-script to compute all of your results from the raw input data and then
-inject those results into your thesis.  An example of this would be
+<p>Things only get worse when you start submitting your work for review.
+As it turns out, academia is slow as shit when it comes to giving
+feedback.  It typically takes on the order of months to get a
+reviewer&#39;s feedback on a paper.  And guess what -- they&#39;re probably
+going to be critical of at least one of your results or at least how
+they&#39;re presented.  By the time you get the review six months has
+passed and you have NFI how you generated your results in the first
+place.  Revising prose is a walk in the park compared to revising
+results generated six months ago.  The thing about the copy/paste
+approach to getting results into your thesis is that it allows you to
+get lazy on results <em>production</em> as well.  I&#39;m telling you this from
+firsthand experience.  I once wrote a set of Java simulations for a
+paper I submitted.  Several months after I submitted the paper I got
+feedback indicating there were improvements that needed to be made.  I
+couldn&#39;t remember a damn thing about how I generated the results.  I
+couldn&#39;t even remember the name of the simulator I used.  I still
+can&#39;t.  Did I run it in Eclipse?  Did it use any special configuration
+file?  What tool did I use to plot the results?  What format was the
+intermediate data in between running the simulation and plotting the
+results?  Did I even write a script to plot the results, or did I do
+it all interactively on the command line?  This folks, is one very
+good reason to automate your PhD outputs.</p>
+
+<p>With the greedy solution out of the way, onto the optimal solution.
+The optimal solution is to build out your <code>build_phd.sh</code> script to
+compute all of your results from the raw input data and then inject
+those results into your thesis.  An example of this would be to add
 code in <code>build_phd.sh</code> that runs a simulation over your raw input
 data, generates an important figure <code>my_awesome_figure.pdf</code> and saves
 it into your thesis directory.  So you end up with a directory
@@ -165,7 +169,7 @@ been following the greedy strategy, you would have hard-coded the
 value 283 everywhere in your thesis and need to go back and update it.
 To treat it as data instead of prose, you could have a step in your
 <code>build_phd.sh</code> script that emitted a file <code>widgets.tex</code> that simply
-read <code>283</code>.  In your thesis you then replace the literal <code>283</code> with
+read <code>283</code>.  In the thesis you then replace the literal <code>283</code> with
 <code>\input{widgets}</code>.</p>
 
 <p>So now your directory looks like:</p>
