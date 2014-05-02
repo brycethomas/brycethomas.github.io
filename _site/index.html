@@ -44,19 +44,19 @@
     		<ul class="entries">
     		
     		  <li>
+    		    <a href="/2014/05/03/a-successful-phd-workflow-for-programmers.html">
+                      <span>03 May 2014</span>
+    		        <h3>A PhD Workflow for Programmers</h3>
+                      <div><p>I&#39;ve been working towards my PhD for a bit over three years now and have tried a lot of different tools for improving my workflow during that time. For the...</div>
+    		    </a>
+    		  </li>
+    		
+    		  <li>
     		    <a href="/2014/01/24/one-weird-tip-to-reduce-runtime-a-little-each-iteration.html">
                       <span>24 January 2014</span>
     		        <h3>One Weird Tip to Reduce Runtime a Little each Iteration</h3>
                       <div><p>TODO: write this post</p>
 </div>
-    		    </a>
-    		  </li>
-    		
-    		  <li>
-    		    <a href="/2014/01/13/a-successful-phd-workflow-for-programmers.html">
-                      <span>13 January 2014</span>
-    		        <h3>A PhD Workflow for Programmers</h3>
-                      <div><p>I&#39;ve been working towards my PhD for almost three years now and have tried a lot of different tools for improving my workflow during that time. For the sake of...</div>
     		    </a>
     		  </li>
     		
@@ -112,7 +112,17 @@
     <!-- Analytics
     ================================================== -->
     <script>
-		// analytics code
+        // check not localhost before tracking page view.
+	if (document.location.hostname !== 'localhost'
+            && document.location.hostname !== '127.0.0.1') {
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-50605969-1', 'brycethomas.github.io');
+        ga('send', 'pageview');
+        }
     </script>	
 	</body>
 </html>
