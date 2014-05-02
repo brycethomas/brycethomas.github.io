@@ -40,15 +40,6 @@ cd thesis
 touch main.tex
 ```
 
-Then open `main.tex` and add the following:
-
-```latex
-\documentclass{article}
-\begin{document}
-TODO: write my thesis.
-\end{document}
-``` 
-
 This sets you up with a skeleton LaTeX document for your PhD.  The
 `~/phd` directory now looks like:
 
@@ -59,7 +50,16 @@ phd
     └── main.tex
 ```
 
-Now open `build_phd.sh` and edit it to read:
+Now open `main.tex` and add the following:
+
+```latex
+\documentclass{article}
+\begin{document}
+TODO: write my thesis.
+\end{document}
+``` 
+
+Then open `build_phd.sh` and edit it to read:
 
 ```
 echo -e "compiling the PhD..."
@@ -272,11 +272,11 @@ clear, LaTeX is a massive pain in the arse, but at least it's a plain
 text pain in the arse.  With Word, it's very hard (if not impossible?)
 to automate your PhD build as described above because you have no way
 to inject variables or figures into your document.  You're also
-missing out on working in a good keyboard-oriented text editor.  Yes,
-both LaTeX and good text editors have a steeper learning curve than
-Word, but you'll reach the intersection point long before completing
-your PhD.  So, do what you can to convince your supervisors to work
-with you in LaTeX.  If you can't do that, see if they're happy to just
+missing out on working in a good keyboard-oriented text editor.  Both
+LaTeX and good text editors have a steeper learning curve than Word,
+but you'll reach the intersection point long before completing your
+PhD.  So, do what you can to convince your supervisors to work with
+you in LaTeX.  If you can't do that, see if they're happy to just
 print things and make handwritten notes.  It's not optimal for you,
 but often it is for them.  You'll probably find they do this
 regardless of how they feel about the Word/LaTeX debate.
@@ -296,7 +296,7 @@ line really isn't that scary, particularly not on the timescale of a
 PhD.  You'll also come to find that [I/O
 redirection](http://linuxcommand.org/lts0060.php) often trivially
 solves routine computation steps with built in commands, meaning you
-have to write less code.  Even if you're familiar with *none* of the
+get to write less code.  Even if you're familiar with *none* of the
 tools mentioned in this post (Git, Shell scripting, LaTeX, Emacs),
 think of these as learning opportunities.  You'll walk away with an
 appreciation of a widely used version control system, a generic

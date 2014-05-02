@@ -76,12 +76,6 @@ mkdir -p thesis
 <span class="nb">cd </span>thesis
 touch main.tex
 </code></pre></div>
-<p>Then open <code>main.tex</code> and add the following:</p>
-<div class="highlight"><pre><code class="latex language-latex" data-lang="latex"><span class="k">\documentclass</span><span class="nb">{</span>article<span class="nb">}</span>
-<span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
-TODO: write my thesis.
-<span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span>
-</code></pre></div>
 <p>This sets you up with a skeleton LaTeX document for your PhD.  The
 <code>~/phd</code> directory now looks like:</p>
 <div class="highlight"><pre><code class="text language-text" data-lang="text">phd
@@ -89,7 +83,13 @@ TODO: write my thesis.
 └── thesis
     └── main.tex
 </code></pre></div>
-<p>Now open <code>build_phd.sh</code> and edit it to read:</p>
+<p>Now open <code>main.tex</code> and add the following:</p>
+<div class="highlight"><pre><code class="latex language-latex" data-lang="latex"><span class="k">\documentclass</span><span class="nb">{</span>article<span class="nb">}</span>
+<span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+TODO: write my thesis.
+<span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span>
+</code></pre></div>
+<p>Then open <code>build_phd.sh</code> and edit it to read:</p>
 <div class="highlight"><pre><code class="text language-text" data-lang="text">echo -e &quot;compiling the PhD...&quot;
 cd thesis
 pdflatex main.tex
@@ -288,11 +288,11 @@ clear, LaTeX is a massive pain in the arse, but at least it&#39;s a plain
 text pain in the arse.  With Word, it&#39;s very hard (if not impossible?)
 to automate your PhD build as described above because you have no way
 to inject variables or figures into your document.  You&#39;re also
-missing out on working in a good keyboard-oriented text editor.  Yes,
-both LaTeX and good text editors have a steeper learning curve than
-Word, but you&#39;ll reach the intersection point long before completing
-your PhD.  So, do what you can to convince your supervisors to work
-with you in LaTeX.  If you can&#39;t do that, see if they&#39;re happy to just
+missing out on working in a good keyboard-oriented text editor.  Both
+LaTeX and good text editors have a steeper learning curve than Word,
+but you&#39;ll reach the intersection point long before completing your
+PhD.  So, do what you can to convince your supervisors to work with
+you in LaTeX.  If you can&#39;t do that, see if they&#39;re happy to just
 print things and make handwritten notes.  It&#39;s not optimal for you,
 but often it is for them.  You&#39;ll probably find they do this
 regardless of how they feel about the Word/LaTeX debate.</p>
@@ -312,7 +312,7 @@ line really isn&#39;t that scary, particularly not on the timescale of a
 PhD.  You&#39;ll also come to find that <a href="http://linuxcommand.org/lts0060.php">I/O
 redirection</a> often trivially
 solves routine computation steps with built in commands, meaning you
-have to write less code.  Even if you&#39;re familiar with <em>none</em> of the
+get to write less code.  Even if you&#39;re familiar with <em>none</em> of the
 tools mentioned in this post (Git, Shell scripting, LaTeX, Emacs),
 think of these as learning opportunities.  You&#39;ll walk away with an
 appreciation of a widely used version control system, a generic
@@ -345,9 +345,7 @@ some time for, y&#39;know, research.</p>
                                   
                                 </section>
 				<section style="font-weight:bold; margin-bottom: 2em;">
-					 
-							<a rel="prev" class="a-hover"href="/2014/01/24/one-weird-tip-to-reduce-runtime-a-little-each-iteration.html"><i class="icon-double-angle-left"></i> One Weird Tip to Reduce Runtime a Little each Iteration</a>
-						
+					
 						
 				</section>
 			</article>
