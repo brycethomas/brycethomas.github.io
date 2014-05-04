@@ -100,18 +100,65 @@ wireless card I had connected to my computer has Vendor ID `0bda` and
 Product ID `8187`.  If you can't identify the specific peripheral
 you're interested in porting, unplug it and run `lsusb` again to see
 which item is now omitted in the output.  Keep a note of the Vendor ID
-and Product ID.  For time being they'll help us to find the
+and Product ID.  For the time being they'll help us to find the
 peripheral's Linux driver source code.  You'll also need them later on
 though as a way of registering your Android application as capable of
 handling connected peripherals with that Vendor ID and Product ID.
 
+TODO: write rest of section here once I get more answers on driver
+matching from
+http://stackoverflow.com/questions/11661679/where-in-the-linux-source-does-recognition-of-specific-usb-devices-happen.
 
+### Navigating the Linux Driver Source Code 
 
-You've first got to find the
-Linux source code that's responsible for handling To figure out which file in the
-Linux source is the entrypoint to the existing 
-You'll first need to gather some metadata about the peripheral. that
-will then help you find which driver Linux is delegating figure out is
-where to find the source code for the Linux driver.
+At this point it's assumed you've been able to find the relevant
+peripheral driver source code file using the method outlined above.
+What would be nice to know now is where in this file the "entrypoint"
+is, i.e. once Linux has handed responsibility for the peripheral
+driver, what function is it that executes.  What you should be looking
+for is a call to
+[`module_usb_driver()`](https://www.kernel.org/doc/htmldocs/usb/API-module-usb-driver.html).
+`module_usb_drver()` accepts a struct of type `usb_driver`, so you
+should see in the call that something is being passed in.  This struct
+has a number of fields, but the one of immediate interest is
+`.probe`.  `.probe` is a function pointer to the method that initially
+gets called.  So, `.probe` is essentially the "main" method as far as
+control of a USB device is concerned, so this is where one would start
+looking to begin to understand how the Linux peripheral driver works.
+To give an example, at time of writing, here is what can be found in
+`/drivers/net/wireless/rtl818x/rtl8187/dev.c`:
 
+```
+static struct usb_driver rtl8187_driver = {
+	.name		= KBUILD_MODNAME,
+	.id_table	= rtl8187_table,
+	.probe		= rtl8187_probe,
+	.disconnect	= rtl8187_disconnect,
+	.disable_hub_initiated_lpm = 1,
+};
+
+module_usb_driver(rtl8187_driver);
+```
+
+Sure enough, there's a function named `rtl8187_probe` in the same file
+and this is the main entry point for this specific driver.  At this
+point you can begin to peruse the Linux driver code and get a feel for
+how your specific peripheral works.  
+
+One tool I found particularly useful when analysing the source code
+for my USB wireless LAN card was
+[CTAGS](http://ctags.sourceforge.net/).  Not to drift too far off
+topic, but essentially the way CTAGS work is that you run the program
+over a source code directory and it generates a standardized index
+file which describes, for example, the file and line number of calls
+to each function.  This index file can then be used in combination
+with a text editor (e.g. Emacs, vi) and keyboard shortcuts to navigate
+the codebase.  The two indispensible features of CTAGS for navigating
+driver code are recursively jumping into function definitions from
+function calls and then recursively jumping back out.  This is very
+helpful for digging into functions to see where the actual byte-level
+transfers are taking place between the host and the peripheral.
+Ultimately it is these byte-level messages that the user space Android
+drive must speak in terms of and this is a good way to get a handle on
+it.  
 
