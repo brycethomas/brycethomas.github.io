@@ -160,5 +160,52 @@ helpful for digging into functions to see where the actual byte-level
 transfers are taking place between the host and the peripheral.
 Ultimately it is these byte-level messages that the user space Android
 drive must speak in terms of and this is a good way to get a handle on
-it.  
+it.  Just a word of warning: CTAGS isn't always 100% reliable when it
+comes to jumping to function definitions.  In fact, I once spent a
+whole day trying to figure out why some source code seemed to indicate
+a `0x0060` message should be sent over the wire while the packet trace
+indicated a `0x0040` was being sent.  It came down to two different
+drivers with the same function name and CTAGs happened to have taken
+me to the wrong file, i.e. I was reading the code for a very similar
+but different driver.
+
+One thing in particular to look out for in the source code is the term
+`urb`.  The Linux kernel has a USB subsystem which handles low level
+I/O between the host and peripheral.  This subsystem speaks in terms of
+URBs (USB Request Blocks).  So for example, you might see calls to
+`usb_submit_urb`, at which point you know you're pretty close to the
+code doing the actual I/O.  At this point don't get too caught up in
+completely understanding the source code. Just have a cursory look
+over it and dig into some of the function definitions.  The next step
+will help with seeing how the source code works.
+
+### Packet Dumping USB
+
+You'll notice that at this point we haven't talked much about the USB
+protocol.  The truth is, I'm not an expert on the protocol; TODO:
+write about the basic packet types and give reference to one or more
+sources where people can learn about them.
+
+If you've ever used Wireshark to capture network traffic before, then
+perhaps you know how useful a packet dump can be.  As it turns out,
+Linux comes with a command that will let you do the same sort of thing
+for USB.  TODO: find out what the dump command is and give some more
+information.  
+
+What I ended up doing when porting porting the wireless USB peripheral
+was printg out ~250 pages of the hex dump and putting it on the desk
+in front of me while I read the driver source code.  Then what I'd do
+is try and match up statements in the source code with what appeared
+in the hex trace.  I found this helped greatly in identifying and
+confirming the *structure* of the messages.  For example, matching a
+loop of 15 messages up to the corresponding hex in the packet dump.
+
+### Adding Logging to the Kernel Driver
+
+The other thing I found to be quite helpful in analyzing kernel source
+code was to actually add logging statements into the driver source and
+reregistering the kernel driver.  This way I could log variable values
+and again try and match them against hex codes in the packet dump.
+
+TODO: write about modifying a kernel driver.
 
