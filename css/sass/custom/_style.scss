@@ -50,12 +50,11 @@ main.container, main.content > .container{
 
 .a-hover{
         color: $grayDark;
-        @include transition(0.3s linear);
 
         &:hover{
             color: $grayDark;
             text-decoration:none;
-            @include opacity(50);
+            @include opacity(80);
         }    
 }
 
@@ -73,7 +72,7 @@ main.container, main.content > .container{
 .content h1{
     font-family: Georgia, "Times New Roman", Times, serif;
      @extend .center-txt;
-    font-size: 6em;  
+    font-size: 4em;  
     margin-top: 1em;
     border-bottom: 1px solid $grayDarker;
     padding-bottom: 0.6em;
@@ -172,8 +171,8 @@ main.container, main.content > .container{
     h2{
         font-family: Georgia, 'Times New Roman', Times, serif;
         @extend .center-txt;
-        font-size: 5em;
-        padding: 1.5em 0 0.5em;
+        font-size: 2.5em;
+        padding: 2.5em 0 0.5em;
         letter-spacing: 0.05em;
     }
 

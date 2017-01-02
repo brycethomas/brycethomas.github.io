@@ -11,19 +11,9 @@
 		<meta name="description" content="Bryce Thomas' Blog">
 		<link rel="stylesheet" href="/css/style.css">
                 <link rel="stylesheet" href="/css/github_pygment.css">
-		<!--[if IE 7]>
-			<html class="ie7"> 
-			<link rel="stylesheet" type="text/css" href="/css/font-awesome-ie7.min.css">
-		<![endif]-->
-		<!--[if IE 8]><html class="ie8"> <![endif]-->		
 	    <!--[if lt IE 9]>
 	      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	    <![endif]-->
-
-		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
 		<link rel="shortcut icon" href="ico/favicon.png">	    
 	</head>
 	<body>
@@ -103,7 +93,7 @@ took when writing my own first user space driver.  If you find I&#39;ve missed
 anything or have gotten something incorrect, let me know and I&#39;ll fix the
 article.</p>
 
-<h3 id="toc_0">Finding a Peripheral&#39;s Existing Driver Source Code</h3>
+<h3 id="finding-a-peripherals-existing-driver-source-code">Finding a Peripheral&#39;s Existing Driver Source Code</h3>
 
 <p>So you have a USB peripheral that works on regular Linux and you&#39;d like to port
 the driver to Android.  To find the Linux source code that&#39;s handling the
@@ -122,17 +112,17 @@ specific peripheral.</li>
 
 <p>On Linux, you can retrieve the Vendor ID and Product ID with the
 <code>lsusb</code> command.  Here&#39;s an example of the output on my machine:</p>
-<div class="highlight"><pre><code class="bash language-bash" data-lang="bash">~<span class="nv">$ </span>lsusb
-Bus 002 Device 011: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless Adapter
-Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 001 Device 002: ID 8087:8008 Intel Corp. 
-Bus 002 Device 002: ID 8087:8000 Intel Corp. 
-Bus 002 Device 003: ID 174c:2074 ASMedia Technology Inc. 
-Bus 002 Device 004: ID 0b05:17d0 ASUSTek Computer, Inc. 
-Bus 002 Device 006: ID 046d:0826 Logitech, Inc. 
-Bus 002 Device 007: ID 045e:071d Microsoft Corp. 
-Bus 002 Device 008: ID 046d:c531 Logitech, Inc. 
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>~$ lsusb
+Bus <span class="m">002</span> Device <span class="m">011</span>: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless Adapter
+Bus <span class="m">001</span> Device <span class="m">001</span>: ID 1d6b:0002 Linux Foundation <span class="m">2</span>.0 root hub
+Bus <span class="m">002</span> Device <span class="m">001</span>: ID 1d6b:0002 Linux Foundation <span class="m">2</span>.0 root hub
+Bus <span class="m">001</span> Device <span class="m">002</span>: ID <span class="m">8087</span>:8008 Intel Corp. 
+Bus <span class="m">002</span> Device <span class="m">002</span>: ID <span class="m">8087</span>:8000 Intel Corp. 
+Bus <span class="m">002</span> Device <span class="m">003</span>: ID 174c:2074 ASMedia Technology Inc. 
+Bus <span class="m">002</span> Device <span class="m">004</span>: ID 0b05:17d0 ASUSTek Computer, Inc. 
+Bus <span class="m">002</span> Device <span class="m">006</span>: ID 046d:0826 Logitech, Inc. 
+Bus <span class="m">002</span> Device <span class="m">007</span>: ID 045e:071d Microsoft Corp. 
+Bus <span class="m">002</span> Device <span class="m">008</span>: ID 046d:c531 Logitech, Inc. 
 </code></pre></div>
 <p>In the output above, the Vendor ID and Product ID on each line are the
 colon-separated hex string. For example, the USB wireless card I had connected
@@ -155,7 +145,7 @@ like to provide clarification on this step, I&#39;ll look to add it to this arti
 The rest of the article assumes you&#39;ve been able to identify the &quot;main&quot; source
 file for your peripheral&#39;s driver.</p>
 
-<h3 id="toc_1">Navigating the Peripheral&#39;s Linux Driver Source Code</h3>
+<h3 id="navigating-the-peripherals-linux-driver-source-code">Navigating the Peripheral&#39;s Linux Driver Source Code</h3>
 
 <p>You&#39;ve located your peripheral driver&#39;s main source file&mdash;let&#39;s call it
    <code>foo.c</code>.  When your peripheral is connected, Linux delegates responsibility
@@ -170,7 +160,7 @@ file for your peripheral&#39;s driver.</p>
    controlling the peripheral, this is where things kick off.  To give an
    example, at time of writing, here is what can be found in
    <code>/drivers/net/wireless/rtl818x/rtl8187/dev.c</code>:</p>
-<div class="highlight"><pre><code class="c language-c" data-lang="c"><span class="k">static</span> <span class="k">struct</span> <span class="n">usb_driver</span> <span class="n">rtl8187_driver</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span></span><span class="k">static</span> <span class="k">struct</span> <span class="n">usb_driver</span> <span class="n">rtl8187_driver</span> <span class="o">=</span> <span class="p">{</span>
     <span class="p">.</span><span class="n">name</span>       <span class="o">=</span> <span class="n">KBUILD_MODNAME</span><span class="p">,</span>
     <span class="p">.</span><span class="n">id_table</span>   <span class="o">=</span> <span class="n">rtl8187_table</span><span class="p">,</span>
     <span class="p">.</span><span class="n">probe</span>      <span class="o">=</span> <span class="n">rtl8187_probe</span><span class="p">,</span>
@@ -226,7 +216,7 @@ a cursory look over the code, digging into some of the function definitions
 along the way.  The next steps will help verify that how you believe the driver
 behaves based on the source code is how the driver actually behaves in practice.</p>
 
-<h3 id="toc_2">Packet Dumping USB</h3>
+<h3 id="packet-dumping-usb">Packet Dumping USB</h3>
 
 <p>You&#39;ll notice that at this point we haven&#39;t talked much about the USB protocol.
 The truth is, I&#39;m not an expert on the protocol; in fact, I only have a
@@ -250,12 +240,12 @@ usbmon</code>.  To avoid dumping <em>all</em> USB traffic, you&#39;ll want to ta
 specific bus your peripheral is running on.  The bus information was in fact
 shown earlier in our call to <code>lsusb</code>.  For example, my device is operating on
 bus 002:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">Bus 002 Device 011: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>Bus 002 Device 011: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless
 Adapter
 </code></pre></div>
 <p>At this point, unplug the USB peripheral.  Now, with the bus number in hand, you
 can start capturing the USB packets, with a call like:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">sudo cat /sys/kernel/debug/usb/usbmon/2u &gt; /tmp/my_peripheral.mon.out
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>sudo cat /sys/kernel/debug/usb/usbmon/2u &gt; /tmp/my_peripheral.mon.out
 </code></pre></div>
 <p>Note the <code>2</code> in <code>/sys/kernel/debug/usb/usbmon/2u</code> is indicating bus 2.  So to
 monitor bus 1, you would instead use <code>/sys/kern...mon/1u</code>.</p>
@@ -276,7 +266,7 @@ Linux driver source code.  Every time I found a perceived discrepancy between
 the two, I&#39;d carefully work through the code until I could see how the two were
 consistent.</p>
 
-<h3 id="toc_3">Adding Logging to the Kernel Driver</h3>
+<h3 id="adding-logging-to-the-kernel-driver">Adding Logging to the Kernel Driver</h3>
 
 <p>Another approach I found quite useful in analyzing the kernel driver was to
 introduce logging statements into the driver source code.  This allowed me to
@@ -312,7 +302,7 @@ article.</p>
 
 <p>With the module name in hand, <code>cd</code> to the root of your modified Linux source
 directory (e.g. <code>~/linux-source</code>), then execute the following:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">~/linux-source$ make
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>~/linux-source$ make
 ~/linux-source$ make ./drivers/path/to/your/driver.ko
 ~/linux-source$ rmmod &lt;your_module_name&gt;
 ~/linux-source$ insmod ./drivers/path/to/your/driver.ko
@@ -321,7 +311,7 @@ directory (e.g. <code>~/linux-source</code>), then execute the following:</p>
 kernel with your modified module.  The output of calls to <code>printk()</code> can be
 found in <code>/var/log/kern.log</code>.</p>
 
-<h3 id="toc_4">Porting the Code to Android</h3>
+<h3 id="porting-the-code-to-android">Porting the Code to Android</h3>
 
 <p>What&#39;s outlined above is a general guide to finding, exploring and analyzing the
 behavior of an existing Linux USB peripheral driver.  With these tools in hand,
@@ -339,7 +329,7 @@ important to understand the basics of the USB transfer types which are not
 covered in this article.  Once you have this knowledge however, everything else
 becomes easier.</p>
 
-<h3 id="toc_5">Conclusion</h3>
+<h3 id="conclusion">Conclusion</h3>
 
 <p>Hopefully this article demystifies what&#39;s involved in porting a USB driver from
 Linux kernel space to Android user space.  Again, this article has been written
@@ -347,7 +337,7 @@ based on my own experience&mdash;if you have particular domain expertise in some
 of the areas I&#39;ve glossed over, please get in touch so that I can improve the
 article.</p>
 
-<h4 id="toc_6">Further Reading</h4>
+<h4 id="further-reading">Further Reading</h4>
 
 <p><a href="http://www.amazon.com/USB-Complete-Fourth-Edition-Developers/dp/1931448086">USB Complete</a>&mdash;recommended
 for getting started with the USB protocol.<br>
@@ -358,22 +348,6 @@ old but still relevant guide to Linux USB driver development.</p>
 				</section>
                                 <!-- Added by Bryce Thomas to enable Disqus comments -->
                                 <section>
-                                  
-                                      <div id="disqus_thread"></div>
-    <script type="text/javascript">
-        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-        var disqus_shortname = 'brycethomas'; // required: replace example with your forum shortname
-
-        /* * * DON'T EDIT BELOW THIS LINE * * */
-        (function() {
-            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        })();
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-    
                                   
                                 </section>
 				<section style="font-weight:bold; margin-bottom: 2em;">
@@ -390,10 +364,12 @@ old but still relevant guide to Linux USB driver development.</p>
 
 	<footer>
 		<div class="container">
-			<img src="http://www.gravatar.com/avatar/f90a75032f542f11befc936bfd27e614?s=40&d=http%3A%2F%2Fwww.example.com%2Fdefault.jpg"/>Copyright
-			<a href="http://about.me/brycethomas">Bryce Thomas</a>
+			<img src="http://www.gravatar.com/avatar/f90a75032f542f11befc936bfd27e614?s=40&d=http%3A%2F%2Fwww.example.com%2Fdefault.jpg"
+			width="40" height="40"/>Copyright
+			<a href="https://www.linkedin.com/in/brycethomas">Bryce Thomas</a>
 			|
 			<a href="http://richbray.me/frap/">Frappuccino</a> theme
+			with modifications
 		</div>
 	</footer>
 

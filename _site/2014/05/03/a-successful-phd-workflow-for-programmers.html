@@ -11,19 +11,9 @@
 		<meta name="description" content="Bryce Thomas' Blog">
 		<link rel="stylesheet" href="/css/style.css">
                 <link rel="stylesheet" href="/css/github_pygment.css">
-		<!--[if IE 7]>
-			<html class="ie7"> 
-			<link rel="stylesheet" type="text/css" href="/css/font-awesome-ie7.min.css">
-		<![endif]-->
-		<!--[if IE 8]><html class="ie8"> <![endif]-->		
 	    <!--[if lt IE 9]>
 	      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	    <![endif]-->
-
-		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
 		<link rel="shortcut icon" href="ico/favicon.png">	    
 	</head>
 	<body>
@@ -58,9 +48,9 @@ solving all nature of other problems along the way, which is what this
 post is largely about.</p>
 
 <p>I&#39;d suggest starting your PhD like this:</p>
-<div class="highlight"><pre><code class="bash language-bash" data-lang="bash"><span class="nb">cd</span> ~
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span><span class="nb">cd</span> ~
 mkdir -p phd
-<span class="nb">cd </span>phd
+<span class="nb">cd</span> phd
 <span class="nb">echo</span> <span class="s2">&quot;echo \&quot;TODO: complete PhD\&quot;&quot;</span> &gt; build_phd.sh
 chmod a+x ./build_phd.sh
 build_phd.sh
@@ -72,26 +62,26 @@ build script <code>build_phd.sh</code>.</p>
 ability to reproduce all PhD outputs with a single call to
 <code>build_phd.sh</code>.  I&#39;ll get you off to a good start building out
 <code>build_phd.sh</code> in just a sec, but firstly:</p>
-<div class="highlight"><pre><code class="bash language-bash" data-lang="bash"><span class="nb">cd</span> ~/phd
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span><span class="nb">cd</span> ~/phd
 mkdir -p thesis
-<span class="nb">cd </span>thesis
+<span class="nb">cd</span> thesis
 touch main.tex
 </code></pre></div>
 <p>This sets you up with a skeleton LaTeX document for your PhD.  The
 <code>~/phd</code> directory now looks like:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">phd
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>phd
 ├── build_phd.sh
 └── thesis
     └── main.tex
 </code></pre></div>
 <p>Now open <code>main.tex</code> and add the following:</p>
-<div class="highlight"><pre><code class="latex language-latex" data-lang="latex"><span class="k">\documentclass</span><span class="nb">{</span>article<span class="nb">}</span>
+<div class="highlight"><pre><code class="language-latex" data-lang="latex"><span></span><span class="k">\documentclass</span><span class="nb">{</span>article<span class="nb">}</span>
 <span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
 TODO: write my thesis.
 <span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span>
 </code></pre></div>
 <p>Then open <code>build_phd.sh</code> and edit it to read:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">echo -e &quot;compiling the PhD...&quot;
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>echo -e &quot;compiling the PhD...&quot;
 cd thesis
 pdflatex main.tex
 bibtex main
@@ -157,14 +147,14 @@ code in <code>build_phd.sh</code> that runs a simulation over your raw input
 data, generates an important figure <code>my_awesome_figure.pdf</code> and saves
 it into your thesis directory.  You end up with a directory structure
 like:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">phd
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>phd
 ├── build_phd.sh
 └── thesis
     ├── main.tex
     └── my_awesome_figure.pdf
 </code></pre></div>
 <p>where you&#39;ve got:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">\begin{figure} 
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>\begin{figure} 
 \includegraphics{my_awesome_figure} 
 \end{figure}
 </code></pre></div>
@@ -183,7 +173,7 @@ thesis and need to go back and update it.  To treat it as data instead
 of prose, you could have a step in <code>build_phd.sh</code> that emits a file
 <code>widgets.tex</code> containing the number of widgets.  So now your directory
 looks like:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">phd
+<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>phd
 ├── build_phd.sh
 └── thesis
     ├── main.tex
@@ -328,22 +318,6 @@ some time for, y&#39;know, research.</p>
                                 <!-- Added by Bryce Thomas to enable Disqus comments -->
                                 <section>
                                   
-                                      <div id="disqus_thread"></div>
-    <script type="text/javascript">
-        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-        var disqus_shortname = 'brycethomas'; // required: replace example with your forum shortname
-
-        /* * * DON'T EDIT BELOW THIS LINE * * */
-        (function() {
-            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        })();
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-    
-                                  
                                 </section>
 				<section style="font-weight:bold; margin-bottom: 2em;">
 					
@@ -359,10 +333,12 @@ some time for, y&#39;know, research.</p>
 
 	<footer>
 		<div class="container">
-			<img src="http://www.gravatar.com/avatar/f90a75032f542f11befc936bfd27e614?s=40&d=http%3A%2F%2Fwww.example.com%2Fdefault.jpg"/>Copyright
-			<a href="http://about.me/brycethomas">Bryce Thomas</a>
+			<img src="http://www.gravatar.com/avatar/f90a75032f542f11befc936bfd27e614?s=40&d=http%3A%2F%2Fwww.example.com%2Fdefault.jpg"
+			width="40" height="40"/>Copyright
+			<a href="https://www.linkedin.com/in/brycethomas">Bryce Thomas</a>
 			|
 			<a href="http://richbray.me/frap/">Frappuccino</a> theme
+			with modifications
 		</div>
 	</footer>
 
