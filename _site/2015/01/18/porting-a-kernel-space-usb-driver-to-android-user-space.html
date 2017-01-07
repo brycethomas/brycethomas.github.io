@@ -36,11 +36,11 @@
 				<h5>18 January 2015</h5>
 				<h2 class="content">Porting a Kernel Space Linux USB Driver to Android User Space</h2>
 				<section>
-					<p>USB OTG is an intriguing feature of Android that perhaps hasn&#39;t gotten as much
+					<p>USB OTG is an intriguing feature of Android that perhaps hasn’t gotten as much
 attention as it deserves.  I suspect this may be in part due to developers not
 knowing where to start.  When I
 <a href="https://github.com/brycethomas/liber80211">partially ported a USB Wi-Fi driver</a>
-back in 2012, there wasn&#39;t much in the way of guides online&mdash;I assembled
+back in 2012, there wasn’t much in the way of guides online—I assembled
 the puzzle one disparate piece of information at a time.  My hope is that this
 guide will bring all the relevant information together and ignite some more
 interest in the area.</p>
@@ -57,62 +57,63 @@ cursor will appear on the screen.  A lot of other peripherals however do not
 have native driver support built into the Android operating system.</p>
 
 <p>The way to get peripherals to work with Android when there is no native driver
-is to use Android&#39;s <a href="http://developer.android.com/guide/topics/connectivity/usb/host.html">USB
+is to use Android’s <a href="http://developer.android.com/guide/topics/connectivity/usb/host.html">USB
 Host</a> API
-to reimplement the peripheral&#39;s driver in <a href="http://en.wikipedia.org/wiki/User_space">user
+to reimplement the peripheral’s driver in <a href="http://en.wikipedia.org/wiki/User_space">user
 space</a>.  The USB host API lets
 applications register to be notified when a specific peripheral is connected to
 the Android device.  This essentially becomes the entry point into your custom
 user space driver.  From here, you can perform arbitrary byte-level I/O with the
-peripheral.  From the Android operating system&#39;s point of view, it has no idea
+peripheral.  From the Android operating system’s point of view, it has no idea
 what those bytes mean, but this obliviousness is what affords the freedom to
 implement a user space driver.  Because the USB host API is an officially
-supported application API, there&#39;s no need to root the Android device in order
+supported application API, there’s no need to root the Android device in order
 to interface with peripherals.  Moreover, it means user space drivers can be
 released on the Google Play Store.</p>
 
-<p>Before we get too far into things, a word of a warning&mdash;USB OTG is still a
+<p>Before we get too far into things, a word of a warning—USB OTG is still a
 bit flaky in the Android ecosystem.  Some devices (e.g. Galaxy Nexus) support
 USB OTG beautifully.  Some other devices mostly support it, but will require an
 external power source for power hungry peripherals.  And some other handsets
-just don&#39;t properly support it at all.  For handsets with no support, this is
+just don’t properly support it at all.  For handsets with no support, this is
 sometimes a hardware issue and sometimes a software issue.  Some people have had
 luck with rooting certain handsets and patching the operating system drivers to
-add USB OTG support, but this isn&#39;t ideal.  Other devices flat out won&#39;t work at
+add USB OTG support, but this isn’t ideal.  Other devices flat out won’t work at
 the hardware level.  So, even though Android &gt;= 3.1 is the formal prerequisite,
 it can still be a bit of a mine field.  Hopefully USB OTG matures on Android
 over time and by increasing awareness of the issues, perhaps this will help
 expedite that process.</p>
 
-<p>One more thing&mdash;Linux drivers are typically written in C while the Android
-USB Host API is written in Java.  You&#39;ll need to be at least familiar with both
+<p>One more thing—Linux drivers are typically written in C while the Android
+USB Host API is written in Java.  You’ll need to be at least familiar with both
 languages.</p>
 
 <p>What follows in the rest of this article is my best recollection of the steps I
-took when writing my own first user space driver.  If you find I&#39;ve missed
-anything or have gotten something incorrect, let me know and I&#39;ll fix the
+took when writing my own first user space driver.  If you find I’ve missed
+anything or have gotten something incorrect, let me know and I’ll fix the
 article.</p>
 
-<h3 id="finding-a-peripherals-existing-driver-source-code">Finding a Peripheral&#39;s Existing Driver Source Code</h3>
+<h3 id="finding-a-peripherals-existing-driver-source-code">Finding a Peripheral’s Existing Driver Source Code</h3>
 
-<p>So you have a USB peripheral that works on regular Linux and you&#39;d like to port
-the driver to Android.  To find the Linux source code that&#39;s handling the
-peripheral, you&#39;ll first need to gather some of the peripheral&#39;s metadata.  Per
+<p>So you have a USB peripheral that works on regular Linux and you’d like to port
+the driver to Android.  To find the Linux source code that’s handling the
+peripheral, you’ll first need to gather some of the peripheral’s metadata.  Per
 the USB protocol, every USB peripheral reports a few key pieces of information
 to the Linux host upon connection.  The host then uses this information to
 delegate responsibility for the peripheral to a specific driver.  The first two
-pieces of information you&#39;ll need are:</p>
+pieces of information you’ll need are:</p>
 
 <ol>
-<li><strong>Vendor ID</strong>: a 16-bit string which uniquely identifies the
-peripheral&#39;s vendor.</li>
-<li><strong>Product ID</strong>: a 16-bit string which uniquely identifiers the
+  <li><strong>Vendor ID</strong>: a 16-bit string which uniquely identifies the
+peripheral’s vendor.</li>
+  <li><strong>Product ID</strong>: a 16-bit string which uniquely identifiers the
 specific peripheral.</li>
 </ol>
 
 <p>On Linux, you can retrieve the Vendor ID and Product ID with the
-<code>lsusb</code> command.  Here&#39;s an example of the output on my machine:</p>
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">~$ </span>lsusb
+<code class="highlighter-rouge">lsusb</code> command.  Here’s an example of the output on my machine:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">~$ </span>lsusb
 Bus 002 Device 011: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless Adapter
 Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
 Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
@@ -123,57 +124,62 @@ Bus 002 Device 004: ID 0b05:17d0 ASUSTek Computer, Inc.
 Bus 002 Device 006: ID 046d:0826 Logitech, Inc. 
 Bus 002 Device 007: ID 045e:071d Microsoft Corp. 
 Bus 002 Device 008: ID 046d:c531 Logitech, Inc. 
-</code></pre></div>
+</code></pre>
+</div>
+
 <p>In the output above, the Vendor ID and Product ID on each line are the
 colon-separated hex string. For example, the USB wireless card I had connected
-to my computer at the time has Vendor ID <code>0bda</code> and Product ID <code>8187</code>.  If you
-can&#39;t identify the specific peripheral you&#39;re interested in porting, unplug it
-and run <code>lsusb</code> again to see which item is now omitted in the output.  Keep a
-note of the Vendor ID and Product ID.  For the time being they&#39;ll help us to
-find the peripheral&#39;s Linux driver source code.  You&#39;ll also need them later on
+to my computer at the time has Vendor ID <code class="highlighter-rouge">0bda</code> and Product ID <code class="highlighter-rouge">8187</code>.  If you
+can’t identify the specific peripheral you’re interested in porting, unplug it
+and run <code class="highlighter-rouge">lsusb</code> again to see which item is now omitted in the output.  Keep a
+note of the Vendor ID and Product ID.  For the time being they’ll help us to
+find the peripheral’s Linux driver source code.  You’ll also need them later on
 though as a way of registering your Android application to handle connected
 peripherals with that Vendor ID and Product ID.</p>
 
-<p>&#91;WARNING: this paragraph is vague&mdash;if this is an area you have
+<p>[WARNING: this paragraph is vague—if this is an area you have
 expertise in, please email me a better description of this step so I can include
-it&#93;.  With the Vendor ID and Product ID in hand, you can now establish which
+it].  With the Vendor ID and Product ID in hand, you can now establish which
 C source file is the driver entry point for your peripheral on Linux.  To do
 this, follow the steps outlined in
 <a href="http://stackoverflow.com/a/11662033/129475">this Stack Overflow answer</a>.  Note
-my comment on this answer hasn&#39;t received a response.  Again, if anyone would
-like to provide clarification on this step, I&#39;ll look to add it to this article.
-The rest of the article assumes you&#39;ve been able to identify the &quot;main&quot; source
-file for your peripheral&#39;s driver.</p>
+my comment on this answer hasn’t received a response.  Again, if anyone would
+like to provide clarification on this step, I’ll look to add it to this article.
+The rest of the article assumes you’ve been able to identify the “main” source
+file for your peripheral’s driver.</p>
 
-<h3 id="navigating-the-peripherals-linux-driver-source-code">Navigating the Peripheral&#39;s Linux Driver Source Code</h3>
+<h3 id="navigating-the-peripherals-linux-driver-source-code">Navigating the Peripheral’s Linux Driver Source Code</h3>
 
-<p>You&#39;ve located your peripheral driver&#39;s main source file&mdash;let&#39;s call it
-   <code>foo.c</code>.  When your peripheral is connected, Linux delegates responsibility
+<p>You’ve located your peripheral driver’s main source file—let’s call it
+   <code class="highlighter-rouge">foo.c</code>.  When your peripheral is connected, Linux delegates responsibility
    for the peripheral to the code in this file. The obvious next question is,
    <em>where in this file does the driver begin executing?</em> What you should look
-   for in <code>foo.c</code> is a call to
-   <a href="https://www.kernel.org/doc/htmldocs/usb/API-module-usb-driver.html"><code>module_usb_driver()</code></a>.
-   <code>module_usb_drver()</code> accepts a struct of type <code>usb_driver</code>, so you should see
+   for in <code class="highlighter-rouge">foo.c</code> is a call to
+   <a href="https://www.kernel.org/doc/htmldocs/usb/API-module-usb-driver.html"><code class="highlighter-rouge">module_usb_driver()</code></a>.
+   <code class="highlighter-rouge">module_usb_drver()</code> accepts a struct of type <code class="highlighter-rouge">usb_driver</code>, so you should see
    in the call that something is being passed in.  This struct has a number of
-   fields, but the one of immediate interest is <code>.probe</code>.  <code>.probe</code> is a
+   fields, but the one of immediate interest is <code class="highlighter-rouge">.probe</code>.  <code class="highlighter-rouge">.probe</code> is a
    function pointer to the method that initially gets called.  In terms of
    controlling the peripheral, this is where things kick off.  To give an
    example, at time of writing, here is what can be found in
-   <code>/drivers/net/wireless/rtl818x/rtl8187/dev.c</code>:</p>
-<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">static</span> <span class="k">struct</span> <span class="n">usb_driver</span> <span class="n">rtl8187_driver</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="p">.</span><span class="n">name</span>       <span class="o">=</span> <span class="n">KBUILD_MODNAME</span><span class="p">,</span>
-    <span class="p">.</span><span class="n">id_table</span>   <span class="o">=</span> <span class="n">rtl8187_table</span><span class="p">,</span>
-    <span class="p">.</span><span class="n">probe</span>      <span class="o">=</span> <span class="n">rtl8187_probe</span><span class="p">,</span>
-    <span class="p">.</span><span class="n">disconnect</span> <span class="o">=</span> <span class="n">rtl8187_disconnect</span><span class="p">,</span>
-    <span class="p">.</span><span class="n">disable_hub_initiated_lpm</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+   <code class="highlighter-rouge">/drivers/net/wireless/rtl818x/rtl8187/dev.c</code>:</p>
+
+<div class="language-c highlighter-rouge"><pre class="highlight"><code><span class="k">static</span> <span class="k">struct</span> <span class="n">usb_driver</span> <span class="n">rtl8187_driver</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="p">.</span><span class="n">name</span>		<span class="o">=</span> <span class="n">KBUILD_MODNAME</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">id_table</span>	<span class="o">=</span> <span class="n">rtl8187_table</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">probe</span>		<span class="o">=</span> <span class="n">rtl8187_probe</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">disconnect</span>	<span class="o">=</span> <span class="n">rtl8187_disconnect</span><span class="p">,</span>
+	<span class="p">.</span><span class="n">disable_hub_initiated_lpm</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">};</span>
 
 <span class="n">module_usb_driver</span><span class="p">(</span><span class="n">rtl8187_driver</span><span class="p">);</span>
-</code></pre></div>
-<p>Take note of the line <code>.probe = rtl8187_probe,</code>.  Sure enough, there&#39;s a
-function named <code>rtl8187_probe</code> in the same file that defines the code to be
+</code></pre>
+</div>
+
+<p>Take note of the line <code class="highlighter-rouge">.probe = rtl8187_probe,</code>.  Sure enough, there’s a
+function named <code class="highlighter-rouge">rtl8187_probe</code> in the same file that defines the code to be
 executed when this specific driver is invoked by the Linux operating system.
-It&#39;s at this point that the driver logic becomes specific to the attached
+It’s at this point that the driver logic becomes specific to the attached
 peripheral.  In other words, what you find in the probe function will be
 determined by what work the driver needs to do when your specific peripheral is
 first connected.  In the remainder of this section I simply identify methods I
@@ -191,71 +197,77 @@ was being able to recursively jump into and out of function definitions.
 Essentially I used CTAGS to generate an index over the entire Linux source code,
 so I was then able to perform this navigation through Emacs and vi keyboard
 shortcuts.  Setting up CTAGS and choice of text editor however are beyond the
-scope of this article.  </p>
+scope of this article.</p>
 
 <p>The reason I heavily advocate CTAGS (or similar) for reading USB driver code is
 that there are often many function calls separating a top-level function in the
 main driver source file from where the actual byte-level data is transmitted or
-received.  When porting the driver to Android user space, it&#39;s ultimately this
-byte-level communication you&#39;ll need to emulate, so being able to quickly
+received.  When porting the driver to Android user space, it’s ultimately this
+byte-level communication you’ll need to emulate, so being able to quickly
 navigate in and out of function calls is very useful.  A final word of warning
-on CTAGS: it&#39;s not always 100% reliable.  I once spent a whole day trying to
-establish why a line of source code seemed to indicate a <code>0x0060</code> should be sent
+on CTAGS: it’s not always 100% reliable.  I once spent a whole day trying to
+establish why a line of source code seemed to indicate a <code class="highlighter-rouge">0x0060</code> should be sent
 over the wire while the corresponding USB packet dump indicated it was actually
-a <code>0x0040</code>.  It came down to two different drivers with the same function
-name&mdash;CTAGs happened to have taken me to the wrong file&mdash;I was reading
+a <code class="highlighter-rouge">0x0040</code>.  It came down to two different drivers with the same function
+name—CTAGs happened to have taken me to the wrong file—I was reading
 the code for a very similar but different driver.</p>
 
-<p>One thing in particular to look out for in the source code is the term <code>urb</code>.
+<p>One thing in particular to look out for in the source code is the term <code class="highlighter-rouge">urb</code>.
 The Linux kernel has a USB subsystem which handles low level I/O between the
 host and peripheral.  This subsystem speaks in terms of URBs (USB Request
-Blocks).  For example, you might see calls to <code>usb_submit_urb</code>, at which point
-you know you&#39;re pretty close to the code doing the actual I/O.  At this point,
-don&#39;t get too caught up in completely understanding the source code. Simply take
+Blocks).  For example, you might see calls to <code class="highlighter-rouge">usb_submit_urb</code>, at which point
+you know you’re pretty close to the code doing the actual I/O.  At this point,
+don’t get too caught up in completely understanding the source code. Simply take
 a cursory look over the code, digging into some of the function definitions
 along the way.  The next steps will help verify that how you believe the driver
 behaves based on the source code is how the driver actually behaves in practice.</p>
 
 <h3 id="packet-dumping-usb">Packet Dumping USB</h3>
 
-<p>You&#39;ll notice that at this point we haven&#39;t talked much about the USB protocol.
-The truth is, I&#39;m not an expert on the protocol; in fact, I only have a
+<p>You’ll notice that at this point we haven’t talked much about the USB protocol.
+The truth is, I’m not an expert on the protocol; in fact, I only have a
 rudimentary working knowledge of the basic transfer types, which, it turns out,
 is sometimes enough.  Rather than diving into the technical details of the USB
 protocol here, I strongly suggest you instead consult a book on the protocol.
-I&#39;ve found the first few chapters of
+I’ve found the first few chapters of
 <a href="http://www.amazon.com/USB-Complete-Fourth-Edition-Developers/dp/1931448086">USB Complete</a>
 contain enough information to get up and running.  The most important thing is
-understanding the different types of USB transfers and how they&#39;re used.
+understanding the different types of USB transfers and how they’re used.
 Alternatively, you might refer to the free
 <a href="http://www.beyondlogic.org/usbnutshell/usb1.shtml">USB in a NutShell</a> website.
-Once you understand the basics, you&#39;ll be able to read USB packet dumps.</p>
+Once you understand the basics, you’ll be able to read USB packet dumps.</p>
 
-<p>If you&#39;ve ever used Wireshark to capture network traffic, you&#39;ll know how useful
-a packet dump can be.  It&#39;s essentially a debugger for the network.  Thankfully,
+<p>If you’ve ever used Wireshark to capture network traffic, you’ll know how useful
+a packet dump can be.  It’s essentially a debugger for the network.  Thankfully,
 Linux comes equip with a command that will let you do the same sort of thing for
-USB.  It&#39;s called <code>usbmon</code>.  On some Linux distributions, to get access to the
-<code>usbmon</code> command you&#39;ll first need to load the module with <code>sudo modprobe
-usbmon</code>.  To avoid dumping <em>all</em> USB traffic, you&#39;ll want to target only the
+USB.  It’s called <code class="highlighter-rouge">usbmon</code>.  On some Linux distributions, to get access to the
+<code class="highlighter-rouge">usbmon</code> command you’ll first need to load the module with <code class="highlighter-rouge">sudo modprobe
+usbmon</code>.  To avoid dumping <em>all</em> USB traffic, you’ll want to target only the
 specific bus your peripheral is running on.  The bus information was in fact
-shown earlier in our call to <code>lsusb</code>.  For example, my device is operating on
+shown earlier in our call to <code class="highlighter-rouge">lsusb</code>.  For example, my device is operating on
 bus 002:</p>
-<div class="highlight"><pre><code class="language-" data-lang="">Bus 002 Device 011: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Bus 002 Device 011: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless
 Adapter
-</code></pre></div>
+</code></pre>
+</div>
+
 <p>At this point, unplug the USB peripheral.  Now, with the bus number in hand, you
 can start capturing the USB packets, with a call like:</p>
-<div class="highlight"><pre><code class="language-" data-lang="">sudo cat /sys/kernel/debug/usb/usbmon/2u &gt; /tmp/my_peripheral.mon.out
-</code></pre></div>
-<p>Note the <code>2</code> in <code>/sys/kernel/debug/usb/usbmon/2u</code> is indicating bus 2.  So to
-monitor bus 1, you would instead use <code>/sys/kern...mon/1u</code>.</p>
 
-<p>If I recall correctly, it&#39;s important to ensure that the peripheral of interest
+<div class="highlighter-rouge"><pre class="highlight"><code>sudo cat /sys/kernel/debug/usb/usbmon/2u &gt; /tmp/my_peripheral.mon.out
+</code></pre>
+</div>
+
+<p>Note the <code class="highlighter-rouge">2</code> in <code class="highlighter-rouge">/sys/kernel/debug/usb/usbmon/2u</code> is indicating bus 2.  So to
+monitor bus 1, you would instead use <code class="highlighter-rouge">/sys/kern...mon/1u</code>.</p>
+
+<p>If I recall correctly, it’s important to ensure that the peripheral of interest
 is the only peripheral operating on the given bus (which you can verify by
-reading the output of <code>lsusb</code>).  For example, if a USB mouse is connected to the
+reading the output of <code class="highlighter-rouge">lsusb</code>).  For example, if a USB mouse is connected to the
 same bus, the trace will be mixing packets from the two devices.  You may need
 to experiment with plugging the peripheral into different USB ports to find an
-empty bus.  More information about the <code>usbmon</code> command can be found
+empty bus.  More information about the <code class="highlighter-rouge">usbmon</code> command can be found
 <a href="https://www.kernel.org/doc/Documentation/usb/usbmon.txt">here</a>.</p>
 
 <p>What I ended up doing with the packet dump produced by my wireless USB
@@ -263,7 +275,7 @@ peripheral was to print the ~250 pages of hex and work through it in lockstep
 with the Linux source code.  This turned out extremely useful in
 cross-referencing the pattern of USB messages observed over the wire against the
 Linux driver source code.  Every time I found a perceived discrepancy between
-the two, I&#39;d carefully work through the code until I could see how the two were
+the two, I’d carefully work through the code until I could see how the two were
 consistent.</p>
 
 <h3 id="adding-logging-to-the-kernel-driver">Adding Logging to the Kernel Driver</h3>
@@ -273,50 +285,53 @@ introduce logging statements into the driver source code.  This allowed me to
 log variable values as the driver executed, which I would again try to match to
 hex codes in the packet dump.</p>
 
-<p>Under Linux, you can use the <a href="http://en.wikipedia.org/wiki/Printk"><code>printk()</code></a>
+<p>Under Linux, you can use the <a href="http://en.wikipedia.org/wiki/Printk"><code class="highlighter-rouge">printk()</code></a>
 function to print to the kernel log.  You may find that there are already calls
-to <code>printk()</code> dispersed throughout the driver you&#39;re analyzing.  Essentially I
+to <code class="highlighter-rouge">printk()</code> dispersed throughout the driver you’re analyzing.  Essentially I
 downloaded the Linux source tree, made the relevant modifications to the code,
 compiled the modified driver and inserted the new module into the running
-operating system.  If your peripheral&#39;s driver is a kernel module (as was the
+operating system.  If your peripheral’s driver is a kernel module (as was the
 case with mine), you can perform this operation without needing to reboot the
-computer.  First however, you&#39;ll need to establish the name of the kernel module
+computer.  First however, you’ll need to establish the name of the kernel module
 that corresponds to your driver.  The unsophisticated, though effective method I
 used to achieve this was to:</p>
 
 <ol>
-<li>Restart Linux without the peripheral connected</li>
-<li>Run <code>lsmod</code> and keep note of the results</li>
-<li>Plug in the peripheral</li>
-<li>Run <code>lsmod</code> and compare the output to Step 2.</li>
+  <li>Restart Linux without the peripheral connected</li>
+  <li>Run <code class="highlighter-rouge">lsmod</code> and keep note of the results</li>
+  <li>Plug in the peripheral</li>
+  <li>Run <code class="highlighter-rouge">lsmod</code> and compare the output to Step 2.</li>
 </ol>
 
 <p>If your driver is indeed a module which is dynamically loaded the first time the
-peripheral is plugged in, you should see changes between the two runs of <code>lsmod</code>
+peripheral is plugged in, you should see changes between the two runs of <code class="highlighter-rouge">lsmod</code>
 which give away the name.  For example, the module name for my wireless USB
-peripheral is <code>rtl8187</code> and appears in the output of Step 4 but not Step 2.  If
-this doesn&#39;t work for you, perhaps your driver isn&#39;t implemented as a
+peripheral is <code class="highlighter-rouge">rtl8187</code> and appears in the output of Step 4 but not Step 2.  If
+this doesn’t work for you, perhaps your driver isn’t implemented as a
 dynamically loaded module.  Again, if anyone would like to contribute as to how
 this scenario should be addressed, please contact me so that I can update the
 article.</p>
 
-<p>With the module name in hand, <code>cd</code> to the root of your modified Linux source
-directory (e.g. <code>~/linux-source</code>), then execute the following:</p>
-<div class="highlight"><pre><code class="language-" data-lang="">~/linux-source$ make
+<p>With the module name in hand, <code class="highlighter-rouge">cd</code> to the root of your modified Linux source
+directory (e.g. <code class="highlighter-rouge">~/linux-source</code>), then execute the following:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>~/linux-source$ make
 ~/linux-source$ make ./drivers/path/to/your/driver.ko
 ~/linux-source$ rmmod &lt;your_module_name&gt;
 ~/linux-source$ insmod ./drivers/path/to/your/driver.ko
-</code></pre></div>
-<p>The calls to <code>rmmod</code> and <code>insmod</code> should replace the old module in the running
-kernel with your modified module.  The output of calls to <code>printk()</code> can be
-found in <code>/var/log/kern.log</code>.</p>
+</code></pre>
+</div>
+
+<p>The calls to <code class="highlighter-rouge">rmmod</code> and <code class="highlighter-rouge">insmod</code> should replace the old module in the running
+kernel with your modified module.  The output of calls to <code class="highlighter-rouge">printk()</code> can be
+found in <code class="highlighter-rouge">/var/log/kern.log</code>.</p>
 
 <h3 id="porting-the-code-to-android">Porting the Code to Android</h3>
 
-<p>What&#39;s outlined above is a general guide to finding, exploring and analyzing the
+<p>What’s outlined above is a general guide to finding, exploring and analyzing the
 behavior of an existing Linux USB peripheral driver.  With these tools in hand,
-it&#39;s time to finally begin porting the code over to Android.  Perhaps
-surprisingly, this is actually now the easy part.  If you&#39;ve followed faithfully
+it’s time to finally begin porting the code over to Android.  Perhaps
+surprisingly, this is actually now the easy part.  If you’ve followed faithfully
 the steps above, you will have a reasonable idea about how your chosen
 peripheral works, or at least some idea of the messages you need to emulate on
 the wire.  From here, you can simply follow the
@@ -324,24 +339,24 @@ the wire.  From here, you can simply follow the
 The documentation describes everything you need to know about registering your
 Android application to be notified when your target peripheral is attached based
 on the Vendor ID and Product ID.  All of the methods used to initiate I/O
-between the Android device and the peripheral are also documented.  Again, it&#39;s
+between the Android device and the peripheral are also documented.  Again, it’s
 important to understand the basics of the USB transfer types which are not
 covered in this article.  Once you have this knowledge however, everything else
 becomes easier.</p>
 
 <h3 id="conclusion">Conclusion</h3>
 
-<p>Hopefully this article demystifies what&#39;s involved in porting a USB driver from
+<p>Hopefully this article demystifies what’s involved in porting a USB driver from
 Linux kernel space to Android user space.  Again, this article has been written
-based on my own experience&mdash;if you have particular domain expertise in some
-of the areas I&#39;ve glossed over, please get in touch so that I can improve the
+based on my own experience—if you have particular domain expertise in some
+of the areas I’ve glossed over, please get in touch so that I can improve the
 article.</p>
 
 <h4 id="further-reading">Further Reading</h4>
 
-<p><a href="http://www.amazon.com/USB-Complete-Fourth-Edition-Developers/dp/1931448086">USB Complete</a>&mdash;recommended
-for getting started with the USB protocol.<br>
-<a href="http://www.linuxjournal.com/article/7353">Writing a Simple USB Driver</a>&mdash;an
+<p><a href="http://www.amazon.com/USB-Complete-Fourth-Edition-Developers/dp/1931448086">USB Complete</a>—recommended
+for getting started with the USB protocol.<br />
+<a href="http://www.linuxjournal.com/article/7353">Writing a Simple USB Driver</a>—an
 old but still relevant guide to Linux USB driver development.</p>
 
 					<hr>
