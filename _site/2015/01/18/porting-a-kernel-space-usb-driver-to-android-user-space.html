@@ -112,17 +112,17 @@ specific peripheral.</li>
 
 <p>On Linux, you can retrieve the Vendor ID and Product ID with the
 <code>lsusb</code> command.  Here&#39;s an example of the output on my machine:</p>
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>~$ lsusb
-Bus <span class="m">002</span> Device <span class="m">011</span>: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless Adapter
-Bus <span class="m">001</span> Device <span class="m">001</span>: ID 1d6b:0002 Linux Foundation <span class="m">2</span>.0 root hub
-Bus <span class="m">002</span> Device <span class="m">001</span>: ID 1d6b:0002 Linux Foundation <span class="m">2</span>.0 root hub
-Bus <span class="m">001</span> Device <span class="m">002</span>: ID <span class="m">8087</span>:8008 Intel Corp. 
-Bus <span class="m">002</span> Device <span class="m">002</span>: ID <span class="m">8087</span>:8000 Intel Corp. 
-Bus <span class="m">002</span> Device <span class="m">003</span>: ID 174c:2074 ASMedia Technology Inc. 
-Bus <span class="m">002</span> Device <span class="m">004</span>: ID 0b05:17d0 ASUSTek Computer, Inc. 
-Bus <span class="m">002</span> Device <span class="m">006</span>: ID 046d:0826 Logitech, Inc. 
-Bus <span class="m">002</span> Device <span class="m">007</span>: ID 045e:071d Microsoft Corp. 
-Bus <span class="m">002</span> Device <span class="m">008</span>: ID 046d:c531 Logitech, Inc. 
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">~$ </span>lsusb
+Bus 002 Device 011: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless Adapter
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 002: ID 8087:8008 Intel Corp. 
+Bus 002 Device 002: ID 8087:8000 Intel Corp. 
+Bus 002 Device 003: ID 174c:2074 ASMedia Technology Inc. 
+Bus 002 Device 004: ID 0b05:17d0 ASUSTek Computer, Inc. 
+Bus 002 Device 006: ID 046d:0826 Logitech, Inc. 
+Bus 002 Device 007: ID 045e:071d Microsoft Corp. 
+Bus 002 Device 008: ID 046d:c531 Logitech, Inc. 
 </code></pre></div>
 <p>In the output above, the Vendor ID and Product ID on each line are the
 colon-separated hex string. For example, the USB wireless card I had connected
@@ -160,7 +160,7 @@ file for your peripheral&#39;s driver.</p>
    controlling the peripheral, this is where things kick off.  To give an
    example, at time of writing, here is what can be found in
    <code>/drivers/net/wireless/rtl818x/rtl8187/dev.c</code>:</p>
-<div class="highlight"><pre><code class="language-c" data-lang="c"><span></span><span class="k">static</span> <span class="k">struct</span> <span class="n">usb_driver</span> <span class="n">rtl8187_driver</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">static</span> <span class="k">struct</span> <span class="n">usb_driver</span> <span class="n">rtl8187_driver</span> <span class="o">=</span> <span class="p">{</span>
     <span class="p">.</span><span class="n">name</span>       <span class="o">=</span> <span class="n">KBUILD_MODNAME</span><span class="p">,</span>
     <span class="p">.</span><span class="n">id_table</span>   <span class="o">=</span> <span class="n">rtl8187_table</span><span class="p">,</span>
     <span class="p">.</span><span class="n">probe</span>      <span class="o">=</span> <span class="n">rtl8187_probe</span><span class="p">,</span>
@@ -240,12 +240,12 @@ usbmon</code>.  To avoid dumping <em>all</em> USB traffic, you&#39;ll want to ta
 specific bus your peripheral is running on.  The bus information was in fact
 shown earlier in our call to <code>lsusb</code>.  For example, my device is operating on
 bus 002:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>Bus 002 Device 011: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless
+<div class="highlight"><pre><code class="language-" data-lang="">Bus 002 Device 011: ID 0bda:8187 Realtek Semiconductor Corp. RTL8187 Wireless
 Adapter
 </code></pre></div>
 <p>At this point, unplug the USB peripheral.  Now, with the bus number in hand, you
 can start capturing the USB packets, with a call like:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>sudo cat /sys/kernel/debug/usb/usbmon/2u &gt; /tmp/my_peripheral.mon.out
+<div class="highlight"><pre><code class="language-" data-lang="">sudo cat /sys/kernel/debug/usb/usbmon/2u &gt; /tmp/my_peripheral.mon.out
 </code></pre></div>
 <p>Note the <code>2</code> in <code>/sys/kernel/debug/usb/usbmon/2u</code> is indicating bus 2.  So to
 monitor bus 1, you would instead use <code>/sys/kern...mon/1u</code>.</p>
@@ -302,7 +302,7 @@ article.</p>
 
 <p>With the module name in hand, <code>cd</code> to the root of your modified Linux source
 directory (e.g. <code>~/linux-source</code>), then execute the following:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text"><span></span>~/linux-source$ make
+<div class="highlight"><pre><code class="language-" data-lang="">~/linux-source$ make
 ~/linux-source$ make ./drivers/path/to/your/driver.ko
 ~/linux-source$ rmmod &lt;your_module_name&gt;
 ~/linux-source$ insmod ./drivers/path/to/your/driver.ko
