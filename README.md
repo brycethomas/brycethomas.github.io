@@ -1,10 +1,9 @@
-HTML5 Muffin chocchip steps
-============================
+Rough notes for running:
 
-Run bundle install
+In repository root:
 
-	bundle install
-
-Run jekyll
-
-	jekyll
+```
+jekyll build --watch
+bundle exec jekyll serve
+sh watch.sh
+```
